@@ -16,7 +16,8 @@
 
 typedef struct {
 	int **Mat;
-	int *StartI, *StartJ, *Directie, *Ships;
+	int *StartI, *StartJ, *Directie, *Ships, *Vap;
+	//directie 2 in jos si 1 la dreapta
 } configuratie;
 
 typedef struct{
@@ -32,16 +33,17 @@ void alocare(configuratie *PC) {
 	(*PC).StartI = malloc(10 * sizeof(int));
 	(*PC).StartJ = malloc(10 * sizeof(int));
 	(*PC).Ships = malloc(10 * sizeof(int));
-	(*PC).Ships[0] = 4;
-	(*PC).Ships[1] = 3;
-	(*PC).Ships[2] = 3;
-	(*PC).Ships[3] = 2;
-	(*PC).Ships[4] = 2;
-	(*PC).Ships[5] = 2;
-	(*PC).Ships[6] = 1;
-	(*PC).Ships[7] = 1;
-	(*PC).Ships[8] = 1;
-	(*PC).Ships[9] = 1;
+	(*PC).Vap = malloc(10 * sizeof(int));
+	(*PC).Vap[0] = (*PC).Ships[0] = 4;
+	(*PC).Vap[1] = (*PC).Ships[1] = 3;
+	(*PC).Vap[2] = (*PC).Ships[2] = 3;
+	(*PC).Vap[3] = (*PC).Ships[3] = 2;
+	(*PC).Vap[4] = (*PC).Ships[4] = 2;
+	(*PC).Vap[5] = (*PC).Ships[5] = 2;
+	(*PC).Vap[6] = (*PC).Ships[6] = 1;
+	(*PC).Vap[7] = (*PC).Ships[7] = 1;
+	(*PC).Vap[8] = (*PC).Ships[8] = 1;
+	(*PC).Vap[9] = (*PC).Ships[9] = 1;
 	
 	for (i = 0; i < 10; ++i)
 	{
@@ -167,6 +169,7 @@ void genereaza(configuratie PC) {
 	}
 
 	for (i = 0; i < 10; ++i) {
+		PC.Vap[i] = PC.Ships[i];
 		if (PC.Ships[i]) {
 			int checker = 1;
 
@@ -244,6 +247,14 @@ void genereaza(configuratie PC) {
 		 }
 		}
 	}
+
+	int j;
+
+	for (i = 0; i < 10; ++i) {
+    	for (j = 0; j < 10; ++j) {
+    		PC.Mat[i][j] = fmax(PC.Mat[i][j] , 0);
+    	}
+    }
 }
 
 //afisez configuratia in format mic
@@ -459,16 +470,65 @@ void showConfigPC(int **Mat, int linieText, int coloanaText) {
 	move(0, 0);
 }
 
+//functie care verifica cand un joc e gata
 int Over(int Nave[]) {
 	int i;
 
 	for (i = 0; i < 10; ++i) {
 		if (Nave[i]) {
-			return 1;
+			return 0;
 		}
 	}
 
-	return 0;
+	return 1;
+}
+
+//functie care ocupa spatiile de langa o nava cand a fost distrusa in totalitate
+void acopera(configuratie Con, int ind) {
+	int k, w, i1, j1, i2, j2;
+
+	if (Con.Directie[ind] == 0) {
+		i1 = fmax(Con.StartI[ind] - 1, 0);
+		j1 = fmax(Con.StartJ[ind] - 1, 0);
+		i2 = fmin(Con.StartI[ind] + 1, 9);
+		j2 = fmin(Con.StartJ[ind] + 1, 9);
+
+		for (k = i1; k <= i2; ++ k) {
+			for (w = j1; w <= j2; ++ w) {
+				if (Con.Mat[k][w] != -2) {
+					Con.Mat[k][w] = -1;
+				}
+			}
+		}
+
+	} else if (Con.Directie[ind] == 1) { // dreapta
+		i1 = fmax(Con.StartI[ind] - 1, 0);
+		j1 = fmax(Con.StartJ[ind] - 1, 0);
+		i2 = fmin(Con.StartI[ind] + 1, 9);
+		j2 = fmin(Con.StartJ[ind] + Con.Vap[ind], 9);
+
+		for (k = i1; k <= i2; ++ k) {
+			for (w = j1; w <= j2; ++ w) {
+				if (Con.Mat[k][w] != -2) {
+					Con.Mat[k][w] = -1;
+				}
+			}
+		}
+	} else if (Con.Directie[ind] == 2) { // jos
+		i1 = fmax(Con.StartI[ind] - 1, 0);
+		j1 = fmax(Con.StartJ[ind] - 1, 0);
+		i2 = fmin(Con.StartI[ind] + Con.Vap[ind], 9);
+		j2 = fmin(Con.StartJ[ind] + 1, 9);
+
+		for (k = i1; k <= i2; ++ k) {
+			for (w = j1; w <= j2; ++ w) {
+				if (Con.Mat[k][w] != -2) {
+					Con.Mat[k][w] = -1;
+				}
+			}
+		}
+	}
+
 }
 
 //randul PCului
@@ -486,6 +546,12 @@ void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc) {
 		}
 
 		if (Jucator.Mat[lin][col] > 0) {
+			Jucator.Ships[ Jucator.Mat[lin][col] - 1 ] --;
+
+			if (Jucator.Ships[ Jucator.Mat[lin][col] - 1 ] == 0) {
+				acopera(Jucator, Jucator.Mat[lin][col] - 1);
+			}
+
 			Jucator.Mat[lin][col] = -2;
 		} else {
 			Jucator.Mat[lin][col] = -1;
@@ -522,11 +588,202 @@ void coloreazaCelula(int i, int j, int linieText, int coloanaText) {
 	attroff(COLOR_PAIR(EVIDENTA));
 }
 
+//distruge 10 spatii aleatorii
+int distruge(configuratie PC, configuratie Jucator, int ColoanaPC) {
+	int i1, j1, i2, j2, counter = 0;
+
+	while (counter < 10) {
+		counter ++; 
+
+		i1 = randomize();
+		j1 = randomize();
+
+		while (PC.Mat[i1][j1] < 0) {
+			i1 = randomize();
+			j1 = randomize();
+		}
+
+		i2 = randomize();
+		j2 = randomize();
+
+		while (Jucator.Mat[i2][j2] < 0) {
+			i2 = randomize();
+			j2 = randomize();
+		}
+
+		if (PC.Mat[i1][j1] > 0) {
+			PC.Ships[ PC.Mat[i1][j1] - 1 ] --;
+
+			if (PC.Ships[ PC.Mat[i1][j1] - 1 ]) {
+				acopera(PC, PC.Mat[i1][j1] - 1);
+			}
+
+			PC.Mat[i1][j1] = -2;
+		} else {
+			PC.Mat[i1][j1] = -1;
+		}
+
+		if (Jucator.Mat[i2][j2] > 0) {
+			Jucator.Ships[ Jucator.Mat[i2][j2] - 1 ] --;
+
+			if (Jucator.Ships[ Jucator.Mat[i2][j2] - 1 ] == 0) {
+				acopera(Jucator, Jucator.Mat[i2][j2] - 1);
+			}
+
+			Jucator.Mat[i2][j2] = -2;
+		} else {
+			Jucator.Mat[i2][j2] = -1;
+		}
+
+		showConfigBig(Jucator.Mat, 15, 25);
+		showConfigPC(PC.Mat, 15, ColoanaPC);
+		sleep(1);
+
+		if (Over(PC.Ships) && Over(Jucator.Ships)) {
+			return 3;
+		} else if (Over(PC.Ships)) {
+			return 2;
+		} else if (Over(Jucator.Ships)) {
+			return 1;
+		}
+
+
+	}
+
+	return 0;
+
+}
+
+void retine(configuratie PC, configuratie Jucator) {
+	FILE *fila;
+	fila = fopen("existaJoc.txt" , "w");
+
+	if (fila != NULL) {
+		int i, j;
+		char *string;
+		char number[3];
+		string = malloc(30 * sizeof(char));
+		fputc('1',fila);
+		fputc('\n',fila);
+
+		//salvez configuratia pcului
+		for (i = 0; i < 10; ++ i) {
+			string[0] = '\0';
+
+			for (j = 0; j < 10; ++ j) {
+				sprintf(number, "%d ", PC.Mat[i][j]);
+				strcat(string, number);
+			}
+
+			fputs(string, fila);
+			fputc('\n',fila);
+		}
+
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", PC.StartI[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", PC.StartJ[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", PC.Directie[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", PC.Ships[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", PC.Vap[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+
+
+		//salvez configuratia jucatorului
+		for (i = 0; i < 10; ++ i) {
+			string[0] = '\0';
+
+			for (j = 0; j < 10; ++ j) {
+				sprintf(number, "%d ", Jucator.Mat[i][j]);
+				strcat(string, number);
+			}
+
+			fputs(string, fila);
+			fputc('\n',fila);
+		}
+
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", Jucator.StartI[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", Jucator.StartJ[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", Jucator.Directie[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", Jucator.Ships[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+		string[0] = '\0';
+
+		for (i = 0; i < 10; ++ i) {
+			sprintf(number, "%d ", Jucator.Vap[i]);
+			strcat(string, number);
+		}
+		fputs(string, fila);
+		fputc('\n',fila);
+	}
+
+}
+
 //incep un nou joc
 void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 	int i, j, nrows, ncols, d;
 	getmaxyx(terminal, nrows, ncols);
 	initWindows(nrows, ncols);
+	int caracter, raspuns;
 
 	int Linie = 15, ColoanaJuc = 25, ColoanaPC = ncols - 65;
 	showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
@@ -539,7 +796,7 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 		if (turn == 1) { // jucator
 			coloreazaCelula(i, j, Linie, ColoanaPC);
 			if ((d = getch())) {
-				switch( d ){
+				switch(d){
 					case KEY_DOWN:
 								i++;
 								i = ( i > 9) ? 0 : i;
@@ -559,6 +816,12 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 					case 10:
 								if (PC.Mat[i][j] != -1 && PC.Mat[i][j] != -2) {
 									if (PC.Mat[i][j] > 0) {
+										PC.Ships[ PC.Mat[i][j] - 1 ] --;
+
+										if (PC.Ships[ PC.Mat[i][j] - 1 ]) {
+											acopera(PC, PC.Mat[i][j] - 1);
+										}
+
 										PC.Mat[i][j] = -2;
 									} else {
 										PC.Mat[i][j] = -1;
@@ -567,10 +830,47 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 								}
 								break;
 					case 'q':
-								checker = 0;
+								//design
+								caracter = getch();
+								while (caracter != 'Y' && caracter != 'N' && caracter != 'y' && caracter != 'n') {
+									caracter = getch();
+								}
+								if (caracter == 'Y' || caracter == 'y') {
+									retine(PC, Jucator);
+									checker = 0;
+								}
 								break;
 					case 'Q':
-								checker = 0;
+								//design
+								caracter = getch();
+								while (caracter != 'Y' && caracter != 'N' && caracter != 'y' && caracter != 'n') {
+									caracter = getch();
+								}
+								if (caracter == 'Y' || caracter == 'y') {
+									retine(PC, Jucator);
+									checker = 0;
+								}
+								break;
+					case 'D':
+								raspuns = distruge(PC, Jucator, ColoanaPC);
+								if (raspuns > 0) {
+									//verificam in functie de care
+									checker = 0;
+								}
+								break;
+					case 'd':
+								raspuns = distruge(PC, Jucator, ColoanaPC);
+								if (raspuns > 0) {
+									//verificam in functie de care
+									checker = 0;
+								}
+								break;
+					case 'R':
+								genereaza(Jucator);
+								break;
+					case 'r':
+								genereaza(Jucator);
+								break;
 				}
 			}	
 			showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
@@ -606,6 +906,7 @@ void Copiere(configuratie Unu, configuratie Doi) {
 		Unu.StartI[i] = Doi.StartI[i];
 		Unu.StartJ[i] = Doi.StartJ[i];
 		Unu.Ships[i] = Doi.Ships[i];
+		Unu.Vap[i] = Doi.Vap[i];
 	}
 
 }
@@ -684,15 +985,9 @@ void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *
 //generez meniul cu configuratii
 void NewGame(configuratie PC, configuratie *Configuratii, int marime, configuratie *Nou, int dimensiune, WINDOW *terminal) {
     genereaza(PC);
-    int i, j, nrows, ncols;
+    int i, nrows, ncols;
     configuratie Salvare;
     alocare(&Salvare);
-
-    for (i = 0; i < 10; ++i) {
-    	for (j = 0; j < 10; ++j) {
-    		PC.Mat[i][j] = fmax(PC.Mat[i][j] , 0);
-    	}
-    }
 
 	getmaxyx(terminal, nrows, ncols);
 	initWindows(nrows, ncols);
@@ -988,9 +1283,6 @@ void readData(int *hasGame, configuratie **Configuratii, int *marime, int argc, 
 
 		}
 
-
-
-
 		fclose(fila);
 
 	}
@@ -1131,6 +1423,14 @@ int main(int argc, char *argv[])
 
 		for(int i = 0; i < 10; ++i)
 			printf("%d ",Nou[k].StartJ[i] );
+		printf("\n");
+
+		for(int i = 0; i < 10; ++i)
+			printf("%d ",Nou[k].Vap[i] );
+		printf("\n");
+
+		for(int i = 0; i < 10; ++i)
+			printf("%d ",Nou[k].Ships[i] );
 		printf("\n");
 	}
 	
