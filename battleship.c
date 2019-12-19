@@ -13,6 +13,7 @@
 #define WHITE_SPACE 4
 #define SHIP 5
 #define EVIDENTA 6
+#define BOX 7
 
 typedef struct {
 	int **Mat;
@@ -64,7 +65,7 @@ void initWindows(int nrows, int ncols)
 	r = c = 0;
 
 	start_color();
-	init_pair(BACKGROUND_PAIR, COLOR_WHITE, COLOR_CYAN);
+	init_pair(BACKGROUND_PAIR, COLOR_BLACK, COLOR_CYAN);
 	attron(COLOR_PAIR(BACKGROUND_PAIR));
 
 	while ( r < nrows)
@@ -109,7 +110,7 @@ void initText(char **elements, int linieText, int coloanaText, int poz, int numb
 			{
 				attroff(A_STANDOUT);
 				start_color();
-				init_pair(BACKGROUND_PAIR,COLOR_WHITE, COLOR_CYAN);
+				init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
 				attron(COLOR_PAIR(BACKGROUND_PAIR));
 
 			}
@@ -614,7 +615,7 @@ int distruge(configuratie PC, configuratie Jucator, int ColoanaPC) {
 		if (PC.Mat[i1][j1] > 0) {
 			PC.Ships[ PC.Mat[i1][j1] - 1 ] --;
 
-			if (PC.Ships[ PC.Mat[i1][j1] - 1 ]) {
+			if (PC.Ships[ PC.Mat[i1][j1] - 1 ] == 0) {
 				acopera(PC, PC.Mat[i1][j1] - 1);
 			}
 
@@ -776,6 +777,28 @@ void retine(configuratie PC, configuratie Jucator) {
 		fputc('\n',fila);
 	}
 
+	fclose(fila);
+
+}
+
+//Meniu de iesire
+void ExitMenu(int ncols) {	
+	start_color();
+	init_pair(BOX, COLOR_BLACK, COLOR_CYAN);
+	WINDOW *win = newwin(10, ncols / 3, 20, ncols / 3);
+	box(win, 124, 0);
+	wbkgd(win, COLOR_PAIR(BOX));
+	attron(COLOR_PAIR(BOX));
+	char **elem;
+	elem = malloc(3 * sizeof(char *));
+	elem[0] = strdup("Do you want to exit?");
+	elem[1] = strdup("Yes(Y)");
+	elem[2] = strdup("No(N)");
+	mvprintw(22, ncols / 3 + (ncols / 3 - 20 ) / 2 , "%s", elem[0]);
+	mvprintw(28, ncols / 3 + (ncols / 3 - 11 ) / 3, "%s", elem[1]);
+	mvprintw(28, ncols / 3 + 2 * (ncols / 3 - 11 ) / 3 + 7, "%s", elem[2]);
+	wrefresh(win);
+	attroff(COLOR_PAIR(BOX));
 }
 
 //incep un nou joc
@@ -792,7 +815,12 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 	i = j = 0;
 	coloreazaCelula(i, j, Linie, ColoanaPC);
 
+	cbreak();
+	noecho();
+
 	while(checker) {
+		getmaxyx(terminal, nrows, ncols);
+
 		if (turn == 1) { // jucator
 			coloreazaCelula(i, j, Linie, ColoanaPC);
 			if ((d = getch())) {
@@ -818,7 +846,7 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 									if (PC.Mat[i][j] > 0) {
 										PC.Ships[ PC.Mat[i][j] - 1 ] --;
 
-										if (PC.Ships[ PC.Mat[i][j] - 1 ]) {
+										if (PC.Ships[ PC.Mat[i][j] - 1 ] == 0) {
 											acopera(PC, PC.Mat[i][j] - 1);
 										}
 
@@ -830,7 +858,7 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 								}
 								break;
 					case 'q':
-								//design
+								ExitMenu(ncols);
 								caracter = getch();
 								while (caracter != 'Y' && caracter != 'N' && caracter != 'y' && caracter != 'n') {
 									caracter = getch();
@@ -838,10 +866,16 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 								if (caracter == 'Y' || caracter == 'y') {
 									retine(PC, Jucator);
 									checker = 0;
+								}
+								initWindows(nrows, ncols);
+								showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
+								showConfigPC(PC.Mat, Linie, ColoanaPC);
+								if (turn == 1) {
+									coloreazaCelula(i, j, Linie, ColoanaPC);	
 								}
 								break;
 					case 'Q':
-								//design
+								ExitMenu(ncols);
 								caracter = getch();
 								while (caracter != 'Y' && caracter != 'N' && caracter != 'y' && caracter != 'n') {
 									caracter = getch();
@@ -849,6 +883,12 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 								if (caracter == 'Y' || caracter == 'y') {
 									retine(PC, Jucator);
 									checker = 0;
+								}
+								initWindows(nrows, ncols);
+								showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
+								showConfigPC(PC.Mat, Linie, ColoanaPC);
+								if (turn == 1) {
+									coloreazaCelula(i, j, Linie, ColoanaPC);	
 								}
 								break;
 					case 'D':
@@ -943,6 +983,9 @@ void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *
     	showConfig(Configuratii[0].Mat, 3, 3);
     }
 
+    cbreak();
+	noecho();
+
     while (checker)
 	{
 		if ((d = getch())) {
@@ -1017,6 +1060,9 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 	  	showConfig(Nou[0].Mat, 3, 3);
 	}
 
+	cbreak();
+	noecho();
+
     while (checker)
 	{
 		if ((d = getch())) {
@@ -1058,8 +1104,8 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 
 }
 
-//citesc configuratiile vechi si noi ale jucatorului din fisiere
-void readData(int *hasGame, configuratie **Configuratii, int *marime, int argc, char *argv[], configuratie **Nou, int *dimensiune) {
+// verific daca exista deja un joc
+void eJoc(int *hasGame) {
 	FILE *fila;
 	fila = fopen("existaJoc.txt" , "r");
 
@@ -1072,7 +1118,11 @@ void readData(int *hasGame, configuratie **Configuratii, int *marime, int argc, 
 		*hasGame = sr[0] - '0';
 		fclose(fila);
 	}
+}
 
+//citesc configuratiile vechi si noi ale jucatorului din fisiere
+void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], configuratie **Nou, int *dimensiune) {
+	FILE *fila;
 	fila = fopen("configuratii.txt", "r");
 
 	if (fila != NULL) {
@@ -1309,7 +1359,8 @@ int main(int argc, char *argv[])
 	meniu[1].elemente[2] = strdup("Quit(Q)");
 	configuratie *Configuratii, *Nou, PC;
 	int hasGame = 0, marime = 0, dimensiune = 0;
-	readData(&hasGame, &Configuratii, &marime, argc, argv, &Nou, &dimensiune);
+	eJoc(&hasGame);
+	readData(&Configuratii, &marime, argc, argv, &Nou, &dimensiune);
 
 	terminal = initscr();
     cbreak();
@@ -1350,6 +1401,7 @@ int main(int argc, char *argv[])
 								if (i == 0) {
 									NewGame(PC, Configuratii, marime, Nou, dimensiune, terminal);
 									initWindows(nrows, ncols);
+									eJoc(&hasGame);
 								} else if (i == 1)
 								{
 									printf("DA\n");
@@ -1360,6 +1412,7 @@ int main(int argc, char *argv[])
 								if (i == 0) {
 									NewGame(PC, Configuratii, marime, Nou, dimensiune, terminal);
 									initWindows(nrows, ncols);
+									eJoc(&hasGame);
 								} else if (i == 1) {
 									checker = 0;
 								}
