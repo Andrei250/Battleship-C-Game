@@ -14,6 +14,7 @@
 #define SHIP 5
 #define EVIDENTA 6
 #define BOX 7
+#define BOX2 8
 
 typedef struct {
 	int **Mat;
@@ -26,7 +27,37 @@ typedef struct{
 	char **elemente;
 } textinitial;
 
+//dealoc memorie
+void dealoca(configuratie C) {
+	int i;
 
+	for (i = 0; i < 10; ++i) {
+		free(C.Mat[i]);
+	}
+
+	free(C.Mat);
+	free(C.StartI);
+	free(C.StartJ);
+	free(C.Directie);
+	free(C.Ships);
+	free(C.Vap);
+}
+
+//initializez navele
+void initializare(configuratie PC) {
+	PC.Vap[0] = PC.Ships[0] = 4;
+	PC.Vap[1] = PC.Ships[1] = 3;
+	PC.Vap[2] = PC.Ships[2] = 3;
+	PC.Vap[3] = PC.Ships[3] = 2;
+	PC.Vap[4] = PC.Ships[4] = 2;
+	PC.Vap[5] = PC.Ships[5] = 2;
+	PC.Vap[6] = PC.Ships[6] = 1;
+	PC.Vap[7] = PC.Ships[7] = 1;
+	PC.Vap[8] = PC.Ships[8] = 1;
+	PC.Vap[9] = PC.Ships[9] = 1;
+}
+
+//aloc memorie pentru o configuratie
 void alocare(configuratie *PC) {
 	int i;
 	(*PC).Mat = malloc(10 * sizeof(int *));
@@ -277,6 +308,45 @@ void showConfig(int **Mat, int linieText, int coloanaText) {
 				addch(' ');
 				attroff(COLOR_PAIR(MATRIX_PAIR_1));
 			} else if (Mat[i][j] == 0) {
+				attron(COLOR_PAIR(MATRIX_PAIR_2));
+				addch(' ');
+				move(linieText + i, coloanaText + 2 * j + 1);
+				addch(' ');
+				attroff(COLOR_PAIR(MATRIX_PAIR_2));
+			} else if (Mat[i][j] == -1) { // nava ratata
+				attron(COLOR_PAIR(WHITE_SPACE));
+				addch(' ');
+				move(linieText + i, coloanaText + 2 * j + 1);
+				addch(' ');
+				attroff(COLOR_PAIR(WHITE_SPACE));
+			} else if (Mat[i][j] == -2) { // nava nimerita
+				attron(COLOR_PAIR(SHIP));
+				addch(' ');
+				move(linieText + i, coloanaText + 2 * j + 1);
+				addch(' ');
+				attroff(COLOR_PAIR(SHIP));
+			}
+			refresh();
+		}
+
+	}
+
+	move(0, 0);
+}
+
+//afisez configuratia PCului in format mic
+void showPC(int **Mat, int linieText, int coloanaText) {
+	int i, j;
+	start_color();
+	init_pair(MATRIX_PAIR_1, COLOR_BLACK, COLOR_BLACK);
+	init_pair(MATRIX_PAIR_2, COLOR_WHITE, COLOR_WHITE);
+	init_pair(SHIP, COLOR_RED, COLOR_RED);
+	init_pair(WHITE_SPACE, COLOR_MAGENTA, COLOR_MAGENTA);
+
+	for (i = 0; i < 10; ++i) {
+		for (j = 0; j < 10; ++j) {
+			move(linieText + i, coloanaText + 2 * j);
+			if (Mat[i][j] == 0) {
 				attron(COLOR_PAIR(MATRIX_PAIR_2));
 				addch(' ');
 				move(linieText + i, coloanaText + 2 * j + 1);
@@ -554,6 +624,7 @@ void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc) {
 			}
 
 			Jucator.Mat[lin][col] = -2;
+
 		} else {
 			Jucator.Mat[lin][col] = -1;
 			checker = 0;
@@ -561,6 +632,10 @@ void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc) {
 
 		showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 		sleep(3);
+
+		if(Over(Jucator.Ships)) {
+			return;
+		}
 
 	}
 
@@ -782,11 +857,11 @@ void retine(configuratie PC, configuratie Jucator) {
 }
 
 //Meniu de iesire
-void ExitMenu(int ncols) {	
+void ExitMenu(int ncols, int nrows) {	
 	start_color();
 	init_pair(BOX, COLOR_BLACK, COLOR_CYAN);
 	WINDOW *win = newwin(10, ncols / 3, 20, ncols / 3);
-	box(win, 124, 0);
+	box(win, 0, 0);
 	wbkgd(win, COLOR_PAIR(BOX));
 	attron(COLOR_PAIR(BOX));
 	char **elem;
@@ -799,6 +874,52 @@ void ExitMenu(int ncols) {
 	mvprintw(28, ncols / 3 + 2 * (ncols / 3 - 11 ) / 3 + 7, "%s", elem[2]);
 	wrefresh(win);
 	attroff(COLOR_PAIR(BOX));
+	int i;
+
+	for (i = 0; i < 3; ++i) {
+		free(elem[i]);
+	}
+
+	free(elem);
+}
+
+//jocul e gata
+void nuAreJoc() {
+	FILE *fila;
+	fila = fopen("existaJoc.txt" , "w");
+	
+	if (fila != NULL) {
+		fputc('0',fila);
+		fputc('\n',fila);
+		fclose(fila);
+	}
+	
+}
+
+//afisez cine castiga
+void MesajFinal(int x, int ncols, int nrows) {
+	start_color();
+	init_pair(BOX2, COLOR_BLACK, COLOR_CYAN);
+	WINDOW *win2 = newwin(10, ncols / 3, 20, ncols / 3);
+	box(win2, 0, 0);
+	wbkgd(win2, COLOR_PAIR(BOX2));
+	attron(COLOR_PAIR(BOX2));
+	char **elem2;
+	elem2 = malloc(3 * sizeof(char *));
+	elem2[0] = strdup("Ai Castigat");
+	elem2[1] = strdup("Calculatorul a castigat");
+	elem2[2] = strdup("Remiza");
+	//mvprintw(25, ncols / 3 + (ncols / 3 - strlen(elem2[x - 1])) / 2, "%s", elem2[x - 1]);
+	mvprintw(0,0,"%s", elem2[x - 1]);
+	wrefresh(win2);
+	attroff(COLOR_PAIR(BOX2));
+	int i;
+
+	for (i = 0; i < 3; ++i) {
+		free(elem2[i]);
+	}
+
+	free(elem2);
 }
 
 //incep un nou joc
@@ -851,14 +972,23 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 										}
 
 										PC.Mat[i][j] = -2;
+
 									} else {
 										PC.Mat[i][j] = -1;
 										turn = 2;
 									}
 								}
+
+								if (Over(PC.Ships)) {
+									MesajFinal(1, ncols, nrows);
+									sleep(2);
+									checker = 0;
+									nuAreJoc();
+								}  
+
 								break;
 					case 'q':
-								ExitMenu(ncols);
+								ExitMenu(ncols, nrows);
 								caracter = getch();
 								while (caracter != 'Y' && caracter != 'N' && caracter != 'y' && caracter != 'n') {
 									caracter = getch();
@@ -875,7 +1005,7 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 								}
 								break;
 					case 'Q':
-								ExitMenu(ncols);
+								ExitMenu(ncols, nrows);
 								caracter = getch();
 								while (caracter != 'Y' && caracter != 'N' && caracter != 'y' && caracter != 'n') {
 									caracter = getch();
@@ -894,15 +1024,19 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 					case 'D':
 								raspuns = distruge(PC, Jucator, ColoanaPC);
 								if (raspuns > 0) {
-									//verificam in functie de care
+									MesajFinal(raspuns, ncols, nrows);
+									sleep(2);
 									checker = 0;
+									nuAreJoc();
 								}
 								break;
 					case 'd':
 								raspuns = distruge(PC, Jucator, ColoanaPC);
 								if (raspuns > 0) {
-									//verificam in functie de care
+									MesajFinal(raspuns, ncols, nrows);
+									sleep(2);
 									checker = 0;
+									nuAreJoc();
 								}
 								break;
 					case 'R':
@@ -924,9 +1058,15 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 			showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 			showConfigPC(PC.Mat, Linie, ColoanaPC);
 			turn = 1;
+
+			if (Over(Jucator.Ships)) {
+				MesajFinal(2, ncols, nrows);
+				sleep(2);
+				checker = 0;
+				nuAreJoc();
+			}
 		}
-		
-		
+
 	}
 
 }
@@ -1104,6 +1244,134 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 
 }
 
+//datele pentru Resume Game
+void dateJoc(configuratie Jucator, configuratie PC) {
+	FILE *fila;
+	fila = fopen("existaJoc.txt" , "r");
+	char *sr;
+	sr = malloc(40 * sizeof(char));
+	char *p;
+	int j, k;
+
+	fgets(sr, 40, fila);
+	//PC
+	for (j = 0; j < 10; ++j) {
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
+
+		while (p) {
+			PC.Mat[j][k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		PC.StartI[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		PC.StartJ[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		PC.Directie[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		PC.Ships[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		PC.Vap[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	//Jucator
+	for (j = 0; j < 10; ++j) {
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
+
+		while (p) {
+			Jucator.Mat[j][k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		Jucator.StartI[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		Jucator.StartJ[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		Jucator.Directie[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		Jucator.Ships[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	fgets(sr, 40, fila);
+	p = strtok(sr, " ");
+	k = 0;
+
+	while (p) {
+		Jucator.Vap[k ++] = atoi(p);
+		p = strtok(NULL, " ");
+	}
+
+	free(sr);
+	fclose(fila);
+}
+
 // verific daca exista deja un joc
 void eJoc(int *hasGame) {
 	FILE *fila;
@@ -1117,6 +1385,7 @@ void eJoc(int *hasGame) {
 		fgets(sr, 4, fila);
 		*hasGame = sr[0] - '0';
 		fclose(fila);
+		free(sr);
 	}
 }
 
@@ -1156,15 +1425,6 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 			k = 0;
 
 			while (p) {
-				(*Configuratii)[i].Directie[k ++] = atoi(p);
-				p = strtok(NULL, " ");
-			}
-
-			fgets(sr, 40, fila);
-			p = strtok(sr, " ");
-			k = 0;
-
-			while (p) {
 				(*Configuratii)[i].StartI[k ++] = atoi(p);
 				p = strtok(NULL, " ");
 			}
@@ -1177,6 +1437,16 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 				(*Configuratii)[i].StartJ[k ++] = atoi(p);
 				p = strtok(NULL, " ");
 			}
+
+			fgets(sr, 40, fila);
+			p = strtok(sr, " ");
+			k = 0;
+
+			while (p) {
+				(*Configuratii)[i].Directie[k ++] = atoi(p);
+				p = strtok(NULL, " ");
+			}
+
 		}
 
 		free(sr);
@@ -1357,7 +1627,7 @@ int main(int argc, char *argv[])
 	meniu[1].elemente[0] = strdup("New Game");
 	meniu[1].elemente[1] = strdup("Resume Game");
 	meniu[1].elemente[2] = strdup("Quit(Q)");
-	configuratie *Configuratii, *Nou, PC;
+	configuratie *Configuratii, *Nou, PC, Player;
 	int hasGame = 0, marime = 0, dimensiune = 0;
 	eJoc(&hasGame);
 	readData(&Configuratii, &marime, argc, argv, &Nou, &dimensiune);
@@ -1378,9 +1648,8 @@ int main(int argc, char *argv[])
 	int i = 0;
 	int checker = 1;
 	alocare(&PC);
-
+	alocare(&Player);
 	i = 0;
-
 	initWindows(nrows, ncols);
 	initText(meniu[hasGame].elemente, linieText, coloanaText, 0, meniu[hasGame].valoare);
 
@@ -1399,12 +1668,15 @@ int main(int argc, char *argv[])
 				case 10:
 							if (hasGame == 1) {
 								if (i == 0) {
+									initializare(PC);
 									NewGame(PC, Configuratii, marime, Nou, dimensiune, terminal);
 									initWindows(nrows, ncols);
 									eJoc(&hasGame);
 								} else if (i == 1)
 								{
-									printf("DA\n");
+									dateJoc(Player, PC);
+									startGame(PC, Player, terminal);
+									eJoc(&hasGame);
 								} else if (i == 2) {
 									checker = 0;
 								}
@@ -1486,7 +1758,17 @@ int main(int argc, char *argv[])
 			printf("%d ",Nou[k].Ships[i] );
 		printf("\n");
 	}
-	
+		
+	printf("\n");
+
+	for(int i = 0; i < 10; ++i)
+	{
+		printf("[");
+		for ( int j = 0; j < 10; ++j){
+				printf("%d ", Player.Mat[i][j] );
+		}
+		printf("]\n");
+	}
 
 	return 0;
 }
