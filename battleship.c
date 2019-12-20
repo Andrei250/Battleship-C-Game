@@ -941,7 +941,7 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 	int Linie = 15, ColoanaJuc = 25, ColoanaPC = ncols - 65;
 	showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 	showConfigPC(PC.Mat, Linie, ColoanaPC);
-	int checker = 1, turn = 1, initialI = -1, initialJ = -1;
+	int checker = 1, turn = 1;
 	i = j = 0;
 	coloreazaCelula(i, j, Linie, ColoanaPC);
 
@@ -955,30 +955,19 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 
 		if (turn == 1) { // jucator
 			int y, x;
-			if (getmouse(&event) == OK) {
-				if (event.bstate & REPORT_MOUSE_POSITION) {
-					y = event.y;
-					x = event.x;
-					if (y >= Linie && y <= Linie + 40 && x >= ColoanaPC && x <= ColoanaPC + 40) {
-						permuta(&x, &y, Linie, ColoanaPC);
-						if ( y != initialJ && x != initialI) {
-							i = initialI = y;
-							j = initialJ = x;
-						}
-					}
-				}
-			}
 			coloreazaCelula(i, j, Linie, ColoanaPC);
 
 			if ((d = getch())) {
 				switch(d){
 					case KEY_MOUSE:
 								if (getmouse(&event) == OK) {
-									if (event.bstate & BUTTON1_PRESSED) {
+									if (event.bstate & BUTTON1_DOUBLE_CLICKED) {
 										y = event.y;
 										x = event.x;
-										if (y >= Linie && y <= Linie + 40 && x >= ColoanaPC && x <= ColoanaPC + 40) {
+										if (y >= Linie && y < (Linie + 20) && x >= ColoanaPC && x < (ColoanaPC + 40)) {
 											permuta(&x, &y, Linie, ColoanaPC);
+											j = x;
+											i = y;
 											if (PC.Mat[y][x] != -1 && PC.Mat[y][x] != -2) {
 												if (PC.Mat[y][x] > 0) {
 													PC.Ships[ PC.Mat[y][x] - 1 ] --;
@@ -995,8 +984,19 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 												}
 											}
 										}
+									} else if (event.bstate & BUTTON1_CLICKED) {
+										y = event.y;
+										x = event.x;
+										if (y >= Linie && y < Linie + 20 && x >= ColoanaPC && x < ColoanaPC + 40) {
+											permuta(&x, &y, Linie, ColoanaPC);
+											if (PC.Mat[y][x] != -1 && PC.Mat[y][x] != -2) {
+												i = y;
+												j = x;
+											}
+										}
 									}
 								}
+								break;
 					case KEY_DOWN:
 								i++;
 								i = ( i > 9) ? 0 : i;
@@ -1116,11 +1116,11 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 				checker = 0;
 				nuAreJoc();
 			}
+
 		}
-
+		flushinp();
 	}
-
-	//mousemask(NULL, ALL_MOUSE_EVENTS);
+	
 
 }
 
@@ -1214,7 +1214,7 @@ void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *
 	  	if (i < marime) {
 	  		showConfig(Configuratii[i].Mat, 3, 3);
 	  	}
-
+	  	flushinp();
 	}
 
 }
@@ -1294,9 +1294,9 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 	  	if (i < dimensiune) {
 	  		showConfig(Nou[i].Mat, 3, 3);
 	  	}
-
+	  	
 	}
-
+	flushinp();
 }
 
 //datele pentru Resume Game
@@ -1753,7 +1753,7 @@ int main(int argc, char *argv[])
 		getmaxyx(terminal, nrows, ncols);
 		initWindows(nrows, ncols);
 		initText(meniu[hasGame].elemente, linieText, coloanaText, i, meniu[hasGame].valoare);
-
+		flushinp();
 	}
 
 	endwin();
