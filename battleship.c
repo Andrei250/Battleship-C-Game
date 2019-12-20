@@ -900,18 +900,19 @@ void nuAreJoc() {
 void MesajFinal(int x, int ncols, int nrows) {
 	start_color();
 	init_pair(BOX2, COLOR_BLACK, COLOR_CYAN);
-	WINDOW *win2 = newwin(10, ncols / 3, 20, ncols / 3);
-	box(win2, 0, 0);
-	wbkgd(win2, COLOR_PAIR(BOX2));
+	WINDOW *win5 = newwin(10, ncols / 3, 20, ncols / 3);
+	box(win5, 0, 0);
+	wbkgd(win5, COLOR_PAIR(BOX2));
+	init_pair(BOX, COLOR_BLACK, COLOR_CYAN);
+	wrefresh(win5);
 	attron(COLOR_PAIR(BOX2));
 	char **elem2;
 	elem2 = malloc(3 * sizeof(char *));
 	elem2[0] = strdup("Ai Castigat");
 	elem2[1] = strdup("Calculatorul a castigat");
 	elem2[2] = strdup("Remiza");
-	//mvprintw(25, ncols / 3 + (ncols / 3 - strlen(elem2[x - 1])) / 2, "%s", elem2[x - 1]);
-	mvprintw(0,0,"%s", elem2[x - 1]);
-	wrefresh(win2);
+	mvwaddstr(win5, 4, (ncols / 3 - strlen(elem2[x - 1])) / 2, elem2[x - 1]);
+	wrefresh(win5);
 	attroff(COLOR_PAIR(BOX2));
 	int i;
 
@@ -920,6 +921,14 @@ void MesajFinal(int x, int ncols, int nrows) {
 	}
 
 	free(elem2);
+}
+
+//aflu coordonatele in matrice
+void permuta(int *x, int *y, int Linie, int Coloana) {
+	*x = *x - Coloana;
+	*x = *x / 4;
+	*y = *y - Linie;
+	*y = *y / 2;
 }
 
 //incep un nou joc
@@ -932,20 +941,62 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 	int Linie = 15, ColoanaJuc = 25, ColoanaPC = ncols - 65;
 	showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 	showConfigPC(PC.Mat, Linie, ColoanaPC);
-	int checker = 1, turn = 1;
+	int checker = 1, turn = 1, initialI = -1, initialJ = -1;
 	i = j = 0;
 	coloreazaCelula(i, j, Linie, ColoanaPC);
 
 	cbreak();
 	noecho();
+	MEVENT event;
+	mousemask(ALL_MOUSE_EVENTS, NULL);
 
 	while(checker) {
 		getmaxyx(terminal, nrows, ncols);
 
 		if (turn == 1) { // jucator
+			int y, x;
+			if (getmouse(&event) == OK) {
+				if (event.bstate & REPORT_MOUSE_POSITION) {
+					y = event.y;
+					x = event.x;
+					if (y >= Linie && y <= Linie + 40 && x >= ColoanaPC && x <= ColoanaPC + 40) {
+						permuta(&x, &y, Linie, ColoanaPC);
+						if ( y != initialJ && x != initialI) {
+							i = initialI = y;
+							j = initialJ = x;
+						}
+					}
+				}
+			}
 			coloreazaCelula(i, j, Linie, ColoanaPC);
+
 			if ((d = getch())) {
 				switch(d){
+					case KEY_MOUSE:
+								if (getmouse(&event) == OK) {
+									if (event.bstate & BUTTON1_PRESSED) {
+										y = event.y;
+										x = event.x;
+										if (y >= Linie && y <= Linie + 40 && x >= ColoanaPC && x <= ColoanaPC + 40) {
+											permuta(&x, &y, Linie, ColoanaPC);
+											if (PC.Mat[y][x] != -1 && PC.Mat[y][x] != -2) {
+												if (PC.Mat[y][x] > 0) {
+													PC.Ships[ PC.Mat[y][x] - 1 ] --;
+
+													if (PC.Ships[ PC.Mat[y][x] - 1 ] == 0) {
+														acopera(PC, PC.Mat[y][x] - 1);
+													}
+
+													PC.Mat[y][x] = -2;
+
+												} else {
+													PC.Mat[y][x] = -1;
+													turn = 2;
+												}
+											}
+										}
+									}
+								}
 					case KEY_DOWN:
 								i++;
 								i = ( i > 9) ? 0 : i;
@@ -1069,6 +1120,8 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 
 	}
 
+	//mousemask(NULL, ALL_MOUSE_EVENTS);
+
 }
 
 // copiez o configuratie
@@ -1144,6 +1197,7 @@ void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *
 							} else if (i < marime) {
 								Copiere(Salvare, Configuratii[i]);
 								startGame(PC, Salvare, terminal);
+								return;
 							}
 							break;
 				case 'q':
@@ -1223,6 +1277,7 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 							} else if (i < dimensiune) {
 								Copiere(Salvare, Nou[i]);
 								startGame(PC, Salvare, terminal);
+								return;
 							}
 							break;
 				case 'q':
