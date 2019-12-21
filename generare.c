@@ -105,16 +105,38 @@ int main(int arc, char *argv[]) {
 
 	int Nave[] = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1};
 
-	for (int i = 0; i < 10; ++i)
-		for(int j = 0; j < 10; ++j)
-			Matrix[i][j] = 0;
+	for (int k = 1; k <= 10; ++k ) {
 
-	begin = clock();
+		for (int i = 0; i < 10; ++i)
+			for (int j = 0; j < 10; ++j)
+				Matrix[i][j] = 0;
 
-	genereaza(Matrix, Nave);
+		begin = clock();
+		genereaza(Matrix, Nave);
+		end = clock();
 
-	end = clock();
+		FILE *fila;
+		char buffer[35];
+		sprintf(buffer, "Test%d", k);
 
+		fila = fopen(buffer, "w");
+
+		for ( int i = 0; i < 10; ++i) {
+			fputc('|',fila);
+
+			for (int j = 0; j < 10; ++j) {
+				if (Matrix[i][j] > 0) {
+					fputc('X',fila);
+				} else {
+					fputc(' ',fila);
+				}
+				fputc('|',fila);
+			}
+
+			fputc('\n',fila);
+		}
+
+	}
 	printf("%lf\n",(double)(end - begin ) / CLOCKS_PER_SEC );
 
 
