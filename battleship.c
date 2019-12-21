@@ -602,8 +602,29 @@ void acopera(configuratie Con, int ind) {
 
 }
 
+//sterga linia de jos
+void stergeLinie(int r, int ncols) {
+	int c;
+	c = 0;
+
+	start_color();
+	init_pair(BACKGROUND_PAIR, COLOR_BLACK, COLOR_CYAN);
+	attron(COLOR_PAIR(BACKGROUND_PAIR));
+	while (c < ncols)
+	{
+		move(r,c);
+		delch();
+		insch(' ');
+		c++;
+	}
+
+	refresh();
+	attroff(COLOR_PAIR(BACKGROUND_PAIR));
+	move(0, 0);
+}
+
 //randul PCului
-void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc) {
+void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc, int nrows, int ncols) {
 	int lin, col;
 	int checker = 1;
 
@@ -631,8 +652,36 @@ void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc) {
 		}
 
 		showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
-		sleep(3);
-
+		
+		if (checker == 1) {
+			int numarare = 3;
+			while (numarare) {
+				stergeLinie(nrows - 3, ncols);
+				init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
+				attron(COLOR_PAIR(BACKGROUND_PAIR));
+				char buffer[30];
+				sprintf(buffer,"Urmatoarea mutare in %d...", numarare);
+				mvaddstr(nrows - 3, (ncols - 25) / 2, buffer);
+				attroff(COLOR_PAIR(BACKGROUND_PAIR));
+				refresh();
+				sleep(1);
+				numarare --;
+			}
+		} else {
+			int numarare = 3;
+			while (numarare) {
+				stergeLinie(nrows - 3, ncols);
+				init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
+				attron(COLOR_PAIR(BACKGROUND_PAIR));
+				char buffer[30];
+				sprintf(buffer,"Randul vostru urmeaza in %d...", numarare);
+				mvaddstr(nrows - 3, (ncols - 30) / 2, buffer);
+				attroff(COLOR_PAIR(BACKGROUND_PAIR));
+				refresh();
+				sleep(1);
+				numarare --;
+			}
+		}
 		if(Over(Jucator.Ships)) {
 			return;
 		}
@@ -931,6 +980,17 @@ void permuta(int *x, int *y, int Linie, int Coloana) {
 	*y = *y / 2;
 }
 
+//informatii despre joc
+void scrieComenzi(int nrows, int ncols, int Linie, int Coloana) {
+	init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
+	attron(COLOR_PAIR(BACKGROUND_PAIR));
+	mvaddstr(Linie - 6, Coloana, "R - Randomize map");
+	mvaddstr(Linie - 5, Coloana, "D - Go 10 steps forward(destroy)");
+	mvaddstr(Linie - 4, Coloana, "Click on right map to select");
+	mvaddstr(Linie - 3, Coloana, "Double click on right map for choosing");
+	attroff(COLOR_PAIR(BACKGROUND_PAIR));
+}
+
 //incep un nou joc
 void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 	int i, j, nrows, ncols, d;
@@ -941,9 +1001,14 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 	int Linie = 15, ColoanaJuc = 25, ColoanaPC = ncols - 65;
 	showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 	showConfigPC(PC.Mat, Linie, ColoanaPC);
+	scrieComenzi(nrows, ncols, Linie, ColoanaJuc);
 	int checker = 1, turn = 1;
 	i = j = 0;
 	coloreazaCelula(i, j, Linie, ColoanaPC);
+	init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
+	attron(COLOR_PAIR(BACKGROUND_PAIR));
+	mvaddstr(nrows - 3, (ncols - 13) / 2, "Randul vostru");
+	attroff(COLOR_PAIR(BACKGROUND_PAIR));
 
 	cbreak();
 	noecho();
@@ -953,9 +1018,27 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 	while(checker) {
 		getmaxyx(terminal, nrows, ncols);
 
+		if (turn == 1) {
+			stergeLinie(nrows - 3, ncols);
+			init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
+			attron(COLOR_PAIR(BACKGROUND_PAIR));
+			mvaddstr(nrows - 3, (ncols - 13) / 2, "Randul vostru");
+			attroff(COLOR_PAIR(BACKGROUND_PAIR));
+			refresh();
+		} else {
+			stergeLinie(nrows - 3, ncols);
+			init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
+			attron(COLOR_PAIR(BACKGROUND_PAIR));
+			mvaddstr(nrows - 3, (ncols - 15) / 2, "Randul PC-ului");
+			attroff(COLOR_PAIR(BACKGROUND_PAIR));
+			refresh();
+			sleep(1);
+		}
+
 		if (turn == 1) { // jucator
 			int y, x;
 			coloreazaCelula(i, j, Linie, ColoanaPC);
+
 
 			if ((d = getch())) {
 				switch(d){
@@ -982,6 +1065,13 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 													PC.Mat[y][x] = -1;
 													turn = 2;
 												}
+											}
+
+											if (Over(PC.Ships)) {
+												MesajFinal(1, ncols, nrows);
+												sleep(2);
+												checker = 0;
+												nuAreJoc();
 											}
 										}
 									} else if (event.bstate & BUTTON1_CLICKED) {
@@ -1036,7 +1126,6 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 									checker = 0;
 									nuAreJoc();
 								}  
-
 								break;
 					case 'q':
 								ExitMenu(ncols, nrows);
@@ -1100,14 +1189,16 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 			}	
 			showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 			showConfigPC(PC.Mat, Linie, ColoanaPC);
+			scrieComenzi(nrows, ncols, Linie, ColoanaJuc);
 			if (turn == 1) {
 				coloreazaCelula(i, j, Linie, ColoanaPC);	
 			}
 			
 		} else { // calculator
-			PCTurn(Jucator, Linie, ColoanaJuc);
+			PCTurn(Jucator, Linie, ColoanaJuc, nrows, ncols);
 			showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 			showConfigPC(PC.Mat, Linie, ColoanaPC);
+			scrieComenzi(nrows, ncols, Linie, ColoanaJuc);
 			turn = 1;
 
 			if (Over(Jucator.Ships)) {
@@ -1115,13 +1206,17 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 				sleep(2);
 				checker = 0;
 				nuAreJoc();
+			} else {
+				init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
+				attron(COLOR_PAIR(BACKGROUND_PAIR));
+				mvaddstr(nrows - 3, (ncols - 13) / 2, "Randul vostru");
+				attroff(COLOR_PAIR(BACKGROUND_PAIR));
 			}
 
 		}
+
 		flushinp();
 	}
-	
-
 }
 
 // copiez o configuratie
@@ -1663,6 +1758,14 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 	}
 }
 
+//salvez configuratiile
+void salveazaConfiguratii(configuratie Configuratii, configuratie Nou, int marime, int dimensiune) {
+	if (marime == 5) {
+		
+	} else {
+		
+	}
+}
 
 //main function
 int main(int argc, char *argv[])
@@ -1747,6 +1850,7 @@ int main(int argc, char *argv[])
 							break;
 			}
 		} else if( d == 'Q' || d == 'q') {
+			salveazaConfiguratii(configuratie Configuratii, configuratie Nou, int marime, int dimensiune);
 			break;
 		}
 
