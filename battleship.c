@@ -60,12 +60,12 @@ void initializare(configuratie PC) {
 //aloc memorie pentru o configuratie
 void alocare(configuratie *PC) {
 	int i;
-	(*PC).Mat = malloc(10 * sizeof(int *));
-	(*PC).Directie = malloc(10 * sizeof(int));
-	(*PC).StartI = malloc(10 * sizeof(int));
-	(*PC).StartJ = malloc(10 * sizeof(int));
-	(*PC).Ships = malloc(10 * sizeof(int));
-	(*PC).Vap = malloc(10 * sizeof(int));
+	(*PC).Mat = malloc(11 * sizeof(int *));
+	(*PC).Directie = malloc(11 * sizeof(int));
+	(*PC).StartI = malloc(11 * sizeof(int));
+	(*PC).StartJ = malloc(11 * sizeof(int));
+	(*PC).Ships = malloc(11 * sizeof(int));
+	(*PC).Vap = malloc(11 * sizeof(int));
 	(*PC).Vap[0] = (*PC).Ships[0] = 4;
 	(*PC).Vap[1] = (*PC).Ships[1] = 3;
 	(*PC).Vap[2] = (*PC).Ships[2] = 3;
@@ -125,9 +125,6 @@ void initText(char **elements, int linieText, int coloanaText, int poz, int numb
 {
 	char *item;
 	int i;
-	// int i, linieText, coloanaText;
-	// linieText = nrows / 3;
-	// coloanaText = ncols / 2 - 10;
 	char Pointer = (char) 62; 
 	for (i = 0; i < number; ++i)
 	{
@@ -169,9 +166,9 @@ void initText(char **elements, int linieText, int coloanaText, int poz, int numb
 		linieText += 3;
 		attroff(COLOR_PAIR(BACKGROUND_PAIR));
 		attroff(A_STANDOUT);
+		free(item);
 	}
 	refresh();
-	free(item);
 	move(0, 0);
 }
 
@@ -921,9 +918,10 @@ void retine(configuratie PC, configuratie Jucator) {
 		}
 		fputs(string, fila);
 		fputc('\n',fila);
-	}
 
-	fclose(fila);
+		free(string);
+		fclose(fila);
+	}
 
 }
 
@@ -1541,15 +1539,6 @@ void scrieComenziM(int nrows, int ncols, int Linie, int Coloana) {
 	mvwprintw(win, 6, 0, "-Q or q - Quit - Revii la meniul principal");
 	wrefresh(win);
 	attroff(COLOR_PAIR(BOX));
-
-	// init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
-	// attron(COLOR_PAIR(BACKGROUND_PAIR));
-	// mvaddstr(Linie - 6, Coloana - 1, "-Arrow UP - move up in menu - navigare prin meniu ");
-	// mvaddstr(Linie - 5, Coloana - 1, "-Arrow DOWN - move down in menu - navigare prin meniu");
-	// mvaddstr(Linie - 4, Coloana - 1, "-Arrow LEFT OR RIGHt - Change menu - schimbi meniul in cel de jos");
-	// mvaddstr(Linie - 3, Coloana - 1, "-Q or q - Quit - Revii la meniul principal");
-	// attroff(COLOR_PAIR(BACKGROUND_PAIR));
-	// refresh();
 }
 
 // generez meniul cu configuratii vechi
@@ -1668,6 +1657,13 @@ void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *
 	  	flushinp();
 	}
 
+	for (i = 0; i < marime + 1; ++ i) {
+		free(meniulVechi[i]);
+	}
+
+	free(meniulVechi);
+	dealoca(Salvare);
+
 }
 
 //generez meniul cu configuratii
@@ -1714,8 +1710,7 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 	cbreak();
 	noecho();
 
-    while (checker && out)
-	{
+    while (checker && out) {
 		getmaxyx(terminal, nrows, ncols);
 		if (nrows < 30) {
 			linieText = nrows / 3 + 5;
@@ -1733,7 +1728,7 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 	  		showConfig(Nou[i].Mat, 3, 3);
 	  	}
 		if ((d = getch())) {
-			switch( d ){
+			switch( d ) {
 				case KEY_DOWN:
 							if (j == 0) {
 								i++;
@@ -1789,9 +1784,16 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 							break;
 			}
 		}	
-	  	
+	 
+		flushinp(); 	
 	}
-	flushinp();
+
+	for (i = 0; i < dimensiune + 2; ++ i) {
+		free(meniulNou[i]);
+	}
+
+	free(meniulNou);
+	dealoca(Salvare);
 }
 
 //datele pentru Resume Game
@@ -1802,124 +1804,126 @@ void dateJoc(configuratie Jucator, configuratie PC) {
 	sr = malloc(40 * sizeof(char));
 	char *p;
 	int j, k;
+	if (fila != NULL) {
+		fgets(sr, 40, fila);
+		//PC
+		for (j = 0; j < 10; ++j) {
+			fgets(sr, 40, fila);
+			p = strtok(sr, " ");
+			k = 0;
 
-	fgets(sr, 40, fila);
-	//PC
-	for (j = 0; j < 10; ++j) {
+			while (p) {
+				PC.Mat[j][k ++] = atoi(p);
+				p = strtok(NULL, " ");
+			}
+		}
+
 		fgets(sr, 40, fila);
 		p = strtok(sr, " ");
 		k = 0;
 
 		while (p) {
-			PC.Mat[j][k ++] = atoi(p);
+			PC.StartI[k ++] = atoi(p);
 			p = strtok(NULL, " ");
 		}
-	}
 
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
-
-	while (p) {
-		PC.StartI[k ++] = atoi(p);
-		p = strtok(NULL, " ");
-	}
-
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
-
-	while (p) {
-		PC.StartJ[k ++] = atoi(p);
-		p = strtok(NULL, " ");
-	}
-
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
-
-	while (p) {
-		PC.Directie[k ++] = atoi(p);
-		p = strtok(NULL, " ");
-	}
-
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
-
-	while (p) {
-		PC.Ships[k ++] = atoi(p);
-		p = strtok(NULL, " ");
-	}
-
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
-
-	while (p) {
-		PC.Vap[k ++] = atoi(p);
-		p = strtok(NULL, " ");
-	}
-
-	//Jucator
-	for (j = 0; j < 10; ++j) {
 		fgets(sr, 40, fila);
 		p = strtok(sr, " ");
 		k = 0;
 
 		while (p) {
-			Jucator.Mat[j][k ++] = atoi(p);
+			PC.StartJ[k ++] = atoi(p);
 			p = strtok(NULL, " ");
 		}
-	}
 
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
 
-	while (p) {
-		Jucator.StartI[k ++] = atoi(p);
-		p = strtok(NULL, " ");
-	}
+		while (p) {
+			PC.Directie[k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
 
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
 
-	while (p) {
-		Jucator.StartJ[k ++] = atoi(p);
-		p = strtok(NULL, " ");
-	}
+		while (p) {
+			PC.Ships[k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
 
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
 
-	while (p) {
-		Jucator.Directie[k ++] = atoi(p);
-		p = strtok(NULL, " ");
-	}
+		while (p) {
+			PC.Vap[k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
 
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
+		//Jucator
+		for (j = 0; j < 10; ++j) {
+			fgets(sr, 40, fila);
+			p = strtok(sr, " ");
+			k = 0;
 
-	while (p) {
-		Jucator.Ships[k ++] = atoi(p);
-		p = strtok(NULL, " ");
-	}
+			while (p) {
+				Jucator.Mat[j][k ++] = atoi(p);
+				p = strtok(NULL, " ");
+			}
+		}
 
-	fgets(sr, 40, fila);
-	p = strtok(sr, " ");
-	k = 0;
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
 
-	while (p) {
-		Jucator.Vap[k ++] = atoi(p);
-		p = strtok(NULL, " ");
+		while (p) {
+			Jucator.StartI[k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
+
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
+
+		while (p) {
+			Jucator.StartJ[k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
+
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
+
+		while (p) {
+			Jucator.Directie[k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
+
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
+
+		while (p) {
+			Jucator.Ships[k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
+
+		fgets(sr, 40, fila);
+		p = strtok(sr, " ");
+		k = 0;
+
+		while (p) {
+			Jucator.Vap[k ++] = atoi(p);
+			p = strtok(NULL, " ");
+		}
+
+		fclose(fila);
 	}
 
 	free(sr);
-	fclose(fila);
 }
 
 // verific daca exista deja un joc
@@ -1940,7 +1944,7 @@ void eJoc(int *hasGame) {
 }
 
 //citesc configuratiile vechi si noi ale jucatorului din fisiere
-void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], configuratie **Nou, int *dimensiune) {
+void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], configuratie **Nou, int *dimensiune, int *eroare) {
 	FILE *fila;
 	fila = fopen("configuratii.txt", "r");
 
@@ -2150,11 +2154,12 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 					}
 				}
 			}
-
+			fclose(fila);
+		} else {
+			*eroare = 1;
+			fprintf(stderr, "[Eroare]: Fisierul %s nu poate fi deschis\n", argv[i]);
+			return;
 		}
-
-		fclose(fila);
-
 	}
 }
 
@@ -2209,10 +2214,11 @@ void salveazaConfiguratii(configuratie *Nou, int dimensiune) {
 			}
 			fputs(string, fila);
 			fputc('\n', fila);
-		}
-	}
 
-	fclose(fila);
+			free(string);
+		}
+		fclose(fila);
+	}	
 }
 
 //afisez informatii despre Joc
@@ -2253,16 +2259,25 @@ void viewInfo(WINDOW *terminal, int nrows, int ncols) {
 		attroff(COLOR_PAIR(BOX));
 		d = getch();
 		if (d == 'Q' || d == 'q') {
+			free(elem);
 			return;
 		}
 
 	}
+
+	free(elem);
 
 }
 
 //main function
 int main(int argc, char *argv[])
 {
+	if (argc <= 1) {
+		fprintf(stderr, "[Eroare]: Nu s-au dat argumente de comanda.\n");
+		return 1;
+	}
+
+	int eroare = 0;
 	time_t t;
 	srand((unsigned) time(&t));
 	int nrows, ncols, d;
@@ -2283,7 +2298,10 @@ int main(int argc, char *argv[])
 	configuratie *Configuratii, *Nou, PC, Player;
 	int hasGame = 0, marime = 0, dimensiune = 0;
 	eJoc(&hasGame);
-	readData(&Configuratii, &marime, argc, argv, &Nou, &dimensiune);
+	readData(&Configuratii, &marime, argc, argv, &Nou, &dimensiune, &eroare);
+	if (eroare == 1) {
+		return 1;
+	}
 
 	terminal = initscr();
     cbreak();
@@ -2366,72 +2384,30 @@ int main(int argc, char *argv[])
 
 	endwin();
 
-	// for(int i = 0; i < 10; ++i)
-	// {
-	// 	printf("[");
-	// 	for ( int j = 0; j < 10; ++j){
-	// 			printf("%d ", PC.Mat[i][j] );
-	// 	}
-	// 	printf("]\n");
-	// }
+	for (i = 0; i < marime; ++ i) {
+		dealoca(Configuratii[i]);
+	}
 
-	// for(int i = 0; i < 10; ++i)
-	// 	printf("%d ",PC.Directie[i] );
-	// printf("\n");
+	for (i = 0; i < dimensiune; ++ i) {
+		dealoca(Nou[i]);
+	}
 
-	// for(int i = 0; i < 10; ++i)
-	// 	printf("%d ",PC.StartI[i] );
-	// printf("\n");
+	dealoca(PC);
+	dealoca(Player);
+	free(Configuratii);
+	free(Nou);
 
-	// for(int i = 0; i < 10; ++i)
-	// 	printf("%d ",PC.StartJ[i] );
-	// printf("\n");
+	for ( i = 0; i < 4; ++ i) {
+		free(meniu[1].elemente[i]);
+	}
 
-	// printf("\n");
+	free(meniu[1].elemente);
 
+	for ( i = 0; i < 3; ++ i) {
+		free(meniu[0].elemente[i]);
+	}
 
-	// for (int k = 0; k < dimensiune; ++k)
-	// {
-	// 	for(int i = 0; i < 10; ++i)
-	// 	{
-	// 		printf("[");
-	// 		for ( int j = 0; j < 10; ++j){
-	// 				printf("%d ", Nou[k].Mat[i][j] );
-	// 		}
-	// 		printf("]\n");
-	// 	}
-
-	// 	for(int i = 0; i < 10; ++i)
-	// 		printf("%d ",Nou[k].Directie[i] );
-	// 	printf("\n");
-
-	// 	for(int i = 0; i < 10; ++i)
-	// 		printf("%d ",Nou[k].StartI[i] );
-	// 	printf("\n");
-
-	// 	for(int i = 0; i < 10; ++i)
-	// 		printf("%d ",Nou[k].StartJ[i] );
-	// 	printf("\n");
-
-	// 	for(int i = 0; i < 10; ++i)
-	// 		printf("%d ",Nou[k].Vap[i] );
-	// 	printf("\n");
-
-	// 	for(int i = 0; i < 10; ++i)
-	// 		printf("%d ",Nou[k].Ships[i] );
-	// 	printf("\n");
-	// }
-		
-	// printf("\n");
-
-	// for(int i = 0; i < 10; ++i)
-	// {
-	// 	printf("[");
-	// 	for ( int j = 0; j < 10; ++j){
-	// 			printf("%d ", Player.Mat[i][j] );
-	// 	}
-	// 	printf("]\n");
-	// }
+	free(meniu[0].elemente);
 
 	return 0;
 }
