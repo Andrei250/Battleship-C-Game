@@ -1030,9 +1030,13 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 
 	int Linie = 15, ColoanaJuc = 25, ColoanaPC = ncols - 65;
 	if (nrows > 38 && ncols > 132) {
+		ColoanaJuc = 25;
+		ColoanaPC = ncols - 65;
 		showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 		showConfigPC(PC.Mat, Linie, ColoanaPC);
 	} else {
+		ColoanaJuc = 15;
+		ColoanaPC = ncols - 35;
 		showConfig(Jucator.Mat, Linie, ColoanaJuc);
 		showPC(PC.Mat, Linie, ColoanaPC);
 	}
@@ -1043,7 +1047,7 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 	if (nrows > 38 && ncols > 132) {
 		coloreazaCelula(i, j, Linie, ColoanaPC);
 	} else {
-		coloreazaCelulaM(i, j, Linie, ColoanaPC);
+		coloreazaCelulaM(i, j, Linie, ColoanaPC);	
 	}
 
 	init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
@@ -1067,9 +1071,13 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 			oldcols = ncols;
 			initWindows(nrows, ncols);
 			if (nrows > 38 && ncols > 132) {
+				ColoanaJuc = 25;
+				ColoanaPC = ncols - 65;
 				showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 				showConfigPC(PC.Mat, Linie, ColoanaPC);
 			} else {
+				ColoanaJuc = 15;
+				ColoanaPC = ncols - 35;
 				showConfig(Jucator.Mat, Linie, ColoanaJuc);
 				showPC(PC.Mat, Linie, ColoanaPC);
 			}
@@ -1209,9 +1217,13 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 								}
 								initWindows(nrows, ncols);
 								if (nrows > 38 && ncols > 132) {
+									ColoanaJuc = 25;
+									ColoanaPC = ncols - 65;
 									showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 									showConfigPC(PC.Mat, Linie, ColoanaPC);
 								} else {
+									ColoanaJuc = 15;
+									ColoanaPC = ncols - 35;
 									showConfig(Jucator.Mat, Linie, ColoanaJuc);
 									showPC(PC.Mat, Linie, ColoanaPC);
 								}
@@ -1236,9 +1248,13 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 								}
 								initWindows(nrows, ncols);
 								if (nrows > 38 && ncols > 132) {
+									ColoanaJuc = 25;
+									ColoanaPC = ncols - 65;
 									showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 									showConfigPC(PC.Mat, Linie, ColoanaPC);
 								} else {
+									ColoanaJuc = 15;
+									ColoanaPC = ncols - 35;
 									showConfig(Jucator.Mat, Linie, ColoanaJuc);
 									showPC(PC.Mat, Linie, ColoanaPC);
 								}
@@ -1278,9 +1294,13 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 				}
 			}	
 			if (nrows > 38 && ncols > 132) {
+				ColoanaJuc = 25;
+				ColoanaPC = ncols - 65;
 				showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 				showConfigPC(PC.Mat, Linie, ColoanaPC);
 			} else {
+				ColoanaJuc = 15;
+				ColoanaPC = ncols - 35;
 				showConfig(Jucator.Mat, Linie, ColoanaJuc);
 				showPC(PC.Mat, Linie, ColoanaPC);
 			}
@@ -1296,9 +1316,13 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal) {
 		} else { // calculator
 			PCTurn(Jucator, Linie, ColoanaJuc, nrows, ncols);
 			if (nrows > 38 && ncols > 132) {
+				ColoanaJuc = 25;
+				ColoanaPC = ncols - 65;
 				showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
 				showConfigPC(PC.Mat, Linie, ColoanaPC);
 			} else {
+				ColoanaJuc = 15;
+				ColoanaPC = ncols - 35;
 				showConfig(Jucator.Mat, Linie, ColoanaJuc);
 				showPC(PC.Mat, Linie, ColoanaPC);
 			}
@@ -1366,14 +1390,12 @@ void NGText(char **elements, int linieText, int coloanaText, int poz, int number
 		init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
 		attron(COLOR_PAIR(BACKGROUND_PAIR));
 		move(linieText + 3, coloanaText - 2);
-		addch(Pointer);
 		move(linieText + 3, coloanaText - 1);
 		addch(' ');
 		mvaddstr(linieText + 3, coloanaText, elements[number - 2]);
 		move(linieText + 3, coloanaText + strlen(elements[number - 2]));
 		addch(' ');
 		move(linieText + 6, coloanaText - 2);
-		addch(Pointer);
 		move(linieText + 6, coloanaText - 1);
 		addch(' ');
 		mvaddstr(linieText + 6, coloanaText, elements[number - 1]);
@@ -1386,7 +1408,6 @@ void NGText(char **elements, int linieText, int coloanaText, int poz, int number
 		init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
 		attron(COLOR_PAIR(BACKGROUND_PAIR));
 		move(linieText, coloanaText - 2);
-		addch(Pointer);
 		move(linieText, coloanaText - 1);
 		addch(' ');
 		mvaddstr(linieText, coloanaText, elements[0]);
@@ -1408,7 +1429,6 @@ void NGText(char **elements, int linieText, int coloanaText, int poz, int number
 		init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
 		attron(COLOR_PAIR(BACKGROUND_PAIR));
 		move(linieText + 6, coloanaText - 2);
-		addch(Pointer);
 		move(linieText + 6, coloanaText - 1);
 		addch(' ');
 		mvaddstr(linieText + 6, coloanaText, elements[number - 1]);
@@ -1421,14 +1441,12 @@ void NGText(char **elements, int linieText, int coloanaText, int poz, int number
 		init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
 		attron(COLOR_PAIR(BACKGROUND_PAIR));
 		move(linieText, coloanaText - 2);
-		addch(Pointer);
 		move(linieText, coloanaText - 1);
 		addch(' ');
 		mvaddstr(linieText, coloanaText, elements[0]);
 		move(linieText, coloanaText + strlen(elements[0]));
 		addch(' ');
 		move(linieText + 3, coloanaText - 2);
-		addch(Pointer);
 		move(linieText + 3, coloanaText - 1);
 		addch(' ');
 		mvaddstr(linieText + 3, coloanaText, elements[number - 2]);
@@ -1474,7 +1492,6 @@ void NGOLD(char **elements, int linieText, int coloanaText, int poz, int number)
 		init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
 		attron(COLOR_PAIR(BACKGROUND_PAIR));
 		move(linieText + 3, coloanaText - 2);
-		addch(Pointer);
 		move(linieText + 3, coloanaText - 1);
 		addch(' ');
 		mvaddstr(linieText + 3, coloanaText, elements[number - 1]);
@@ -1487,7 +1504,6 @@ void NGOLD(char **elements, int linieText, int coloanaText, int poz, int number)
 		init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
 		attron(COLOR_PAIR(BACKGROUND_PAIR));
 		move(linieText, coloanaText - 2);
-		addch(Pointer);
 		move(linieText, coloanaText - 1);
 		addch(' ');
 		mvaddstr(linieText, coloanaText, elements[0]);
@@ -1510,6 +1526,32 @@ void NGOLD(char **elements, int linieText, int coloanaText, int poz, int number)
 	move(0, 0);
 }
 
+//instructiuni de folosire a meniului
+void scrieComenziM(int nrows, int ncols, int Linie, int Coloana) {
+	start_color();
+	init_pair(BOX, COLOR_BLACK, COLOR_CYAN);
+	WINDOW *win = newwin(8, ncols / 3, Linie - 9, Coloana - 1);
+	wbkgd(win, COLOR_PAIR(BOX));
+	wrefresh(win);
+	scrollok(win, TRUE);
+	attron(COLOR_PAIR(BOX));
+	mvwprintw(win, 0, 0, "-Arrow UP - move up in menu - navigare prin meniu ");
+	mvwprintw(win, 2, 0, "-Arrow DOWN - move down in menu - navigare prin meniu");
+	mvwprintw(win, 4, 0, "-Arrow LEFT OR RIGHT - Change menu - schimbi meniul in cel de jos");
+	mvwprintw(win, 6, 0, "-Q or q - Quit - Revii la meniul principal");
+	wrefresh(win);
+	attroff(COLOR_PAIR(BOX));
+
+	// init_pair(BACKGROUND_PAIR,COLOR_BLACK, COLOR_CYAN);
+	// attron(COLOR_PAIR(BACKGROUND_PAIR));
+	// mvaddstr(Linie - 6, Coloana - 1, "-Arrow UP - move up in menu - navigare prin meniu ");
+	// mvaddstr(Linie - 5, Coloana - 1, "-Arrow DOWN - move down in menu - navigare prin meniu");
+	// mvaddstr(Linie - 4, Coloana - 1, "-Arrow LEFT OR RIGHt - Change menu - schimbi meniul in cel de jos");
+	// mvaddstr(Linie - 3, Coloana - 1, "-Q or q - Quit - Revii la meniul principal");
+	// attroff(COLOR_PAIR(BACKGROUND_PAIR));
+	// refresh();
+}
+
 // generez meniul cu configuratii vechi
 void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *terminal, int *out) {
 	int i, nrows, ncols;
@@ -1521,10 +1563,14 @@ void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *
 
 	getmaxyx(terminal, nrows, ncols);
 	initWindows(nrows, ncols);
-
 	int linieText, coloanaText;
-	linieText = nrows / 3;
-	coloanaText = ncols / 2 - 10;
+	if (nrows < 30) {
+		linieText = nrows / 3 + 5;
+		coloanaText = ncols / 2 - 10;
+	} else {
+		linieText = nrows / 3;
+		coloanaText = ncols / 2 - 10;
+	}
 
 	for (i = 0; i < marime; ++i) {
 		char buffer[30];
@@ -1537,6 +1583,7 @@ void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *
 	int checker = 1, d, j;
     i = j = 0;
     NGOLD(meniulVechi, linieText, coloanaText, 0, marime + 1);
+    scrieComenziM(nrows, ncols, linieText, coloanaText);
     if (marime > 0 && ncols > 120) {
   		showConfigBig(Configuratii[i].Mat, 3, 3);
 	} else if (marime > 0 && ncols > 78) {
@@ -1549,10 +1596,16 @@ void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *
     while (checker)
 	{
 		getmaxyx(terminal, nrows, ncols);
-		linieText = nrows / 3;
-		coloanaText = ncols / 2 - 10;
+		if (nrows < 30) {
+			linieText = nrows / 3 + 5;
+			coloanaText = ncols / 2 - 10;
+		} else {
+			linieText = nrows / 3;
+			coloanaText = ncols / 2 - 10;
+		}
 		initWindows(nrows, ncols);
 	  	NGOLD(meniulVechi, linieText, coloanaText, i, marime + 1);
+	  	scrieComenziM(nrows, ncols, linieText, coloanaText);
 	  	if (i < marime && ncols > 120) {
 	  		showConfigBig(Configuratii[i].Mat, 3, 3);
 	  	} else if (i < marime && ncols > 78) {
@@ -1626,10 +1679,14 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 
 	getmaxyx(terminal, nrows, ncols);
 	initWindows(nrows, ncols);
-
 	int linieText, coloanaText;
-	linieText = nrows / 3;
-	coloanaText = ncols / 2 - 10;
+	if (nrows < 30) {
+		linieText = nrows / 3 + 5;
+		coloanaText = ncols / 2 - 10;
+	} else {
+		linieText = nrows / 3;
+		coloanaText = ncols / 2 - 10;
+	}
 
 	char **meniulNou;
 
@@ -1647,6 +1704,7 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
     int checker = 1, d, out = 1, j;
     i = j = 0;
     NGText(meniulNou, linieText, coloanaText, 0, dimensiune + 2);
+    scrieComenziM(nrows, ncols, linieText, coloanaText);
     if (dimensiune > 0 && ncols > 120) {
  		showConfigBig(Nou[i].Mat, 3, 3);
 	 } else if (dimensiune > 0 && ncols > 78) {
@@ -1659,10 +1717,16 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
     while (checker && out)
 	{
 		getmaxyx(terminal, nrows, ncols);
-		linieText = nrows / 3;
-		coloanaText = ncols / 2 - 10;
+		if (nrows < 30) {
+			linieText = nrows / 3 + 5;
+			coloanaText = ncols / 2 - 10;
+		} else {
+			linieText = nrows / 3;
+			coloanaText = ncols / 2 - 10;
+		}
 		initWindows(nrows, ncols);
 	  	NGText(meniulNou, linieText, coloanaText, i, dimensiune + 2);
+	  	scrieComenziM(nrows, ncols, linieText, coloanaText);
 	  	if (i < dimensiune && ncols > 120) {
 	  		showConfigBig(Nou[i].Mat, 3, 3);
 	  	} else if (i < dimensiune && ncols > 78 ) {
@@ -2151,6 +2215,51 @@ void salveazaConfiguratii(configuratie *Nou, int dimensiune) {
 	fclose(fila);
 }
 
+//afisez informatii despre Joc
+void viewInfo(WINDOW *terminal, int nrows, int ncols) {
+	int initial = 8000;
+	char *elem;
+	elem = malloc(initial * sizeof(char));
+	strcpy(elem, "-Apasa Q sau q pentru a iesi.\n");
+	strcat(elem, "-Prin meniul puteti naviga doar cu sagetile.\n");
+	strcat(elem, "-In meniul New Game si Choose an old config navigati treceti la ultimele 2 variante apasand sagetiile stanga sau dreapta.\n");
+	strcat(elem, "-Jocul e cat de cat Responsive, dar recomandat e sa nu dati resize cand e randul calculatorului sau dupa ce ati apasat varianta de mers 10 pasi inainte(D), deoarece nu o sa mearga resize.\n");
+	strcat(elem, "-Cu un click selectati casuta si cu dublu click atacati respectiva casuta.\n");
+	strcat(elem, "-Pentru o experienta de joc buna se recomanda o dimensiune de peste 38x130 a terminalului.\n");
+	strcat(elem, "-Distractie placuta.\n");
+	start_color();
+	init_pair(BOX, COLOR_BLACK, COLOR_CYAN);
+	WINDOW *win = newwin(nrows - 2, ncols / 3, 1, ncols / 3);
+	wbkgd(win, COLOR_PAIR(BOX));
+	wrefresh(win);
+	scrollok(win, TRUE);
+	attron(COLOR_PAIR(BOX));
+	mvwprintw(win, 0, 0, "%s", elem);
+	wrefresh(win);
+	attroff(COLOR_PAIR(BOX));
+
+	int d;
+	while (1) {
+		getmaxyx(terminal, nrows, ncols);
+		initWindows(nrows, ncols);
+		win = newwin(nrows - 2, ncols / 3, 1, ncols / 3);
+		scrollok(win, TRUE);
+		wbkgd(win, COLOR_PAIR(BOX));
+		refresh();
+		scrollok(win,TRUE);
+		attron(COLOR_PAIR(BOX));
+		mvwprintw(win, 0, 0, "%s", elem);
+		wrefresh(win);
+		attroff(COLOR_PAIR(BOX));
+		d = getch();
+		if (d == 'Q' || d == 'q') {
+			return;
+		}
+
+	}
+
+}
+
 //main function
 int main(int argc, char *argv[])
 {
@@ -2160,15 +2269,17 @@ int main(int argc, char *argv[])
 	WINDOW *terminal;
 	nrows = ncols = 0;
 	textinitial meniu[2];
-	meniu[0].valoare = 2;
-	meniu[1].valoare = 3;
-	meniu[0].elemente = malloc(2 * sizeof(char *));
+	meniu[0].valoare = 3;
+	meniu[1].valoare = 4;
+	meniu[0].elemente = malloc(3 * sizeof(char *));
 	meniu[0].elemente[0] = strdup("New Game");
-	meniu[0].elemente[1] = strdup("Quit(Q)");
-	meniu[1].elemente = malloc(3 * sizeof(char *));
+	meniu[0].elemente[1] = strdup("Info");
+	meniu[0].elemente[2] = strdup("Quit(Q)");
+	meniu[1].elemente = malloc(4 * sizeof(char *));
 	meniu[1].elemente[0] = strdup("New Game");
 	meniu[1].elemente[1] = strdup("Resume Game");
-	meniu[1].elemente[2] = strdup("Quit(Q)");
+	meniu[1].elemente[2] = strdup("Info");
+	meniu[1].elemente[3] = strdup("Quit(Q)");
 	configuratie *Configuratii, *Nou, PC, Player;
 	int hasGame = 0, marime = 0, dimensiune = 0;
 	eJoc(&hasGame);
@@ -2225,6 +2336,8 @@ int main(int argc, char *argv[])
 									startGame(PC, Player, terminal);
 									eJoc(&hasGame);
 								} else if (i == 2) {
+									viewInfo(terminal, nrows, ncols);
+								} else if (i == 3) {
 									salveazaConfiguratii(Nou, dimensiune);
 									checker = 0;
 								}
@@ -2234,6 +2347,8 @@ int main(int argc, char *argv[])
 									initWindows(nrows, ncols);
 									eJoc(&hasGame);
 								} else if (i == 1) {
+									viewInfo(terminal, nrows, ncols);
+								} else if (i == 2) {
 									salveazaConfiguratii(Nou, dimensiune);
 									checker = 0;
 								}
@@ -2251,72 +2366,72 @@ int main(int argc, char *argv[])
 
 	endwin();
 
-	for(int i = 0; i < 10; ++i)
-	{
-		printf("[");
-		for ( int j = 0; j < 10; ++j){
-				printf("%d ", PC.Mat[i][j] );
-		}
-		printf("]\n");
-	}
+	// for(int i = 0; i < 10; ++i)
+	// {
+	// 	printf("[");
+	// 	for ( int j = 0; j < 10; ++j){
+	// 			printf("%d ", PC.Mat[i][j] );
+	// 	}
+	// 	printf("]\n");
+	// }
 
-	for(int i = 0; i < 10; ++i)
-		printf("%d ",PC.Directie[i] );
-	printf("\n");
+	// for(int i = 0; i < 10; ++i)
+	// 	printf("%d ",PC.Directie[i] );
+	// printf("\n");
 
-	for(int i = 0; i < 10; ++i)
-		printf("%d ",PC.StartI[i] );
-	printf("\n");
+	// for(int i = 0; i < 10; ++i)
+	// 	printf("%d ",PC.StartI[i] );
+	// printf("\n");
 
-	for(int i = 0; i < 10; ++i)
-		printf("%d ",PC.StartJ[i] );
-	printf("\n");
+	// for(int i = 0; i < 10; ++i)
+	// 	printf("%d ",PC.StartJ[i] );
+	// printf("\n");
 
-	printf("\n");
+	// printf("\n");
 
 
-	for (int k = 0; k < dimensiune; ++k)
-	{
-		for(int i = 0; i < 10; ++i)
-		{
-			printf("[");
-			for ( int j = 0; j < 10; ++j){
-					printf("%d ", Nou[k].Mat[i][j] );
-			}
-			printf("]\n");
-		}
+	// for (int k = 0; k < dimensiune; ++k)
+	// {
+	// 	for(int i = 0; i < 10; ++i)
+	// 	{
+	// 		printf("[");
+	// 		for ( int j = 0; j < 10; ++j){
+	// 				printf("%d ", Nou[k].Mat[i][j] );
+	// 		}
+	// 		printf("]\n");
+	// 	}
 
-		for(int i = 0; i < 10; ++i)
-			printf("%d ",Nou[k].Directie[i] );
-		printf("\n");
+	// 	for(int i = 0; i < 10; ++i)
+	// 		printf("%d ",Nou[k].Directie[i] );
+	// 	printf("\n");
 
-		for(int i = 0; i < 10; ++i)
-			printf("%d ",Nou[k].StartI[i] );
-		printf("\n");
+	// 	for(int i = 0; i < 10; ++i)
+	// 		printf("%d ",Nou[k].StartI[i] );
+	// 	printf("\n");
 
-		for(int i = 0; i < 10; ++i)
-			printf("%d ",Nou[k].StartJ[i] );
-		printf("\n");
+	// 	for(int i = 0; i < 10; ++i)
+	// 		printf("%d ",Nou[k].StartJ[i] );
+	// 	printf("\n");
 
-		for(int i = 0; i < 10; ++i)
-			printf("%d ",Nou[k].Vap[i] );
-		printf("\n");
+	// 	for(int i = 0; i < 10; ++i)
+	// 		printf("%d ",Nou[k].Vap[i] );
+	// 	printf("\n");
 
-		for(int i = 0; i < 10; ++i)
-			printf("%d ",Nou[k].Ships[i] );
-		printf("\n");
-	}
+	// 	for(int i = 0; i < 10; ++i)
+	// 		printf("%d ",Nou[k].Ships[i] );
+	// 	printf("\n");
+	// }
 		
-	printf("\n");
+	// printf("\n");
 
-	for(int i = 0; i < 10; ++i)
-	{
-		printf("[");
-		for ( int j = 0; j < 10; ++j){
-				printf("%d ", Player.Mat[i][j] );
-		}
-		printf("]\n");
-	}
+	// for(int i = 0; i < 10; ++i)
+	// {
+	// 	printf("[");
+	// 	for ( int j = 0; j < 10; ++j){
+	// 			printf("%d ", Player.Mat[i][j] );
+	// 	}
+	// 	printf("]\n");
+	// }
 
 	return 0;
 }
