@@ -1721,16 +1721,20 @@ void scrieComenziM(int nrows, int ncols, int Linie, int Coloana) {
 	wrefresh(win);
 	scrollok(win, TRUE);
 	attron(COLOR_PAIR(BOX));
-	mvwprintw(win, 0, 0, "-Arrow UP - move up in menu - navigare prin meniu ");
-	mvwprintw(win, 2, 0, "-Arrow DOWN - move down in menu - navigare prin meniu");
-	mvwprintw(win, 4, 0, "-Arrow LEFT OR RIGHT - Change menu - schimbi meniul in cel de jos");
+	char s[70];
+	mvwprintw(win, 0, 0, "-Arrow UP - move up in menu - navigare prin meniu");
+	strcpy(s, "-Arrow DOWN - move down in menu - navigare prin meniu");
+	mvwprintw(win, 2, 0, s);
+	strcpy(s, "-Arrow LEFT or RIGHT - Change menu - Meniul de jos sau sus");
+	mvwprintw(win, 4, 0, s);
 	mvwprintw(win, 6, 0, "-Q or q - Quit - Revii la meniul principal");
 	wrefresh(win);
 	attroff(COLOR_PAIR(BOX));
 }
 
 // generez meniul cu configuratii vechi
-void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *terminal, int *out) {
+void OldConfig(configuratie PC, configuratie *Configuratii,
+ int marime, WINDOW *terminal, int *out) {
 	int i, nrows, ncols;
 	char **meniulVechi;
 	configuratie Salvare;
@@ -1861,7 +1865,8 @@ void OldConfig(configuratie PC, configuratie *Configuratii, int marime, WINDOW *
 }
 
 //generez meniul cu configuratii
-void NewGame(configuratie PC, configuratie *Configuratii, int marime, configuratie *Nou, int dimensiune, WINDOW *terminal) {
+void NewGame(configuratie PC, configuratie *Configuratii, int marime,
+ configuratie *Nou, int dimensiune, WINDOW *terminal) {
     genereaza(PC);
     int i, nrows, ncols, w;
     configuratie Salvare;
@@ -1923,65 +1928,65 @@ void NewGame(configuratie PC, configuratie *Configuratii, int marime, configurat
 		if ((d = getch())) {
 			switch( d ) {
 				case KEY_DOWN:
-							if (j == 0) {
-								i++;
-								i = ( i > dimensiune - 1) ? 0 : i;
-							} else {
-								i++;
-								i = ( i > dimensiune + 1) ? dimensiune : i;
-							}
-							break;
+					if (j == 0) {
+						i++;
+						i = ( i > dimensiune - 1) ? 0 : i;
+					} else {
+						i++;
+						i = ( i > dimensiune + 1) ? dimensiune : i;
+					}
+					break;
 				case KEY_UP:
-							if (j == 0) {
-								i--;
-								i = ( i < 0) ? (dimensiune - 1) : i;
-							} else {
-								i--;
-								i = ( i < dimensiune) ? (dimensiune + 1) : i;
-							}
-							break;
+					if (j == 0) {
+						i--;
+						i = ( i < 0) ? (dimensiune - 1) : i;
+					} else {
+						i--;
+						i = ( i < dimensiune) ? (dimensiune + 1) : i;
+					}
+					break;
 				case KEY_RIGHT:
-							j++;
-							if (j == 2) {
-								j = 0;
-								i = 0;
-							} else if (j == 1) {
-								i = dimensiune;
-							}
-							break; 
+					j++;
+					if (j == 2) {
+						j = 0;
+						i = 0;
+					} else if (j == 1) {
+						i = dimensiune;
+					}
+					break; 
 				case KEY_LEFT:
-							j--;
-							if (j == -1) {
-								j = 1;
-								i = dimensiune;
-							} else if (j == 0) {
-								i = 0;
-							}
-							break;
+					j--;
+					if (j == -1) {
+						j = 1;
+						i = dimensiune;
+					} else if (j == 0) {
+						i = 0;
+					}
+					break;
 				case 10:
-							if (i == dimensiune + 1) {
-								checker = 0;
-							} else if (i == dimensiune) {
-								OldConfig(PC, Configuratii, marime, terminal, &out);
-							} else if (i < dimensiune) {
-								alocare(&Salvare);
-								Copiere(Salvare, Nou[i]);
-								startGame(PC, Salvare, terminal, 0);
-								dealoca(Salvare);
-								for (w = 0; w < dimensiune + 2; ++ w) {
-									free(meniulNou[w]);
-								}
+					if (i == dimensiune + 1) {
+						checker = 0;
+					} else if (i == dimensiune) {
+						OldConfig(PC, Configuratii, marime, terminal, &out);
+					} else if (i < dimensiune) {
+						alocare(&Salvare);
+						Copiere(Salvare, Nou[i]);
+						startGame(PC, Salvare, terminal, 0);
+						dealoca(Salvare);
+						for (w = 0; w < dimensiune + 2; ++ w) {
+							free(meniulNou[w]);
+						}
 
-								free(meniulNou);
-								return;
-							}
-							break;
+						free(meniulNou);
+						return;
+					}
+					break;
 				case 'q':
-							checker = 0;
-							break;
+					checker = 0;
+					break;
 				case 'Q':
-							checker = 0;
-							break;
+					checker = 0;
+					break;
 			}
 		}	
 	 
@@ -2152,7 +2157,8 @@ void eJoc(int *hasGame) {
 }
 
 //citesc configuratiile vechi si noi ale jucatorului din fisiere
-void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], configuratie **Nou, int *dimensiune, int *eroare) {
+void readData(configuratie **Configuratii, int *marime, int argc,
+ char *argv[], configuratie **Nou, int *dimensiune, int *eroare) {
 	FILE *fila;
 	fila = fopen("configuratii.txt", "r");
 
@@ -2261,7 +2267,8 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 						int directie = 0;
 						int pozitie = k;
 
-						while (pozitie < 9 && (*Nou)[i - 1].Mat[j][pozitie + 1] == -1) {
+						while (pozitie < 9 && 
+							(*Nou)[i - 1].Mat[j][pozitie + 1] == -1) {
 							counter ++;
 							pozitie ++;
 							directie = 1;
@@ -2269,7 +2276,8 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 
 						pozitie = j;
 
-						while(pozitie < 9 && (*Nou)[i - 1].Mat[pozitie + 1][k] == -1) {
+						while(pozitie < 9 && 
+							(*Nou)[i - 1].Mat[pozitie + 1][k] == -1) {
 							counter ++;
 							pozitie ++;
 							directie = 2;
@@ -2279,7 +2287,8 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 							pozitie = k;
 
 							if (counter == 4) {
-								while (pozitie < 10 && (*Nou)[i - 1].Mat[j][pozitie] == -1) {
+								while (pozitie < 10 && 
+									(*Nou)[i - 1].Mat[j][pozitie] == -1) {
 									(*Nou)[i - 1].Mat[j][pozitie] = 1;
 									pozitie ++;
 								}
@@ -2289,7 +2298,8 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 								(*Nou)[i - 1].StartJ[0] = k;
 							} else if (counter == 3) {
 
-								while (pozitie < 10 && (*Nou)[i - 1].Mat[j][pozitie] == -1) {
+								while (pozitie < 10 && 
+									(*Nou)[i - 1].Mat[j][pozitie] == -1) {
 									(*Nou)[i - 1].Mat[j][pozitie] = 2 + trei;
 									pozitie ++;
 								}
@@ -2301,7 +2311,8 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 
 							} else if (counter == 2) {
 
-								while (pozitie < 10 && (*Nou)[i - 1].Mat[j][pozitie] == -1) {
+								while (pozitie < 10 && 
+									(*Nou)[i - 1].Mat[j][pozitie] == -1) {
 									(*Nou)[i - 1].Mat[j][pozitie] = 4 + doi;
 									pozitie ++;
 								}
@@ -2317,7 +2328,8 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 							pozitie = j;
 
 							if (counter == 4) {
-								while (pozitie < 10 && (*Nou)[i - 1].Mat[pozitie][k] == -1) {
+								while (pozitie < 10 && 
+									(*Nou)[i - 1].Mat[pozitie][k] == -1) {
 									(*Nou)[i - 1].Mat[pozitie][k] = 1;
 									pozitie ++;
 								}
@@ -2327,7 +2339,8 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 								(*Nou)[i - 1].StartJ[0] = k;
 							} else if (counter == 3) {
 
-								while (pozitie < 10 && (*Nou)[i - 1].Mat[pozitie][k] == -1) {
+								while (pozitie < 10 && 
+									(*Nou)[i - 1].Mat[pozitie][k] == -1) {
 									(*Nou)[i - 1].Mat[pozitie][k] = 2 + trei;
 									pozitie ++;
 								}
@@ -2339,7 +2352,8 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 
 							} else if (counter == 2) {
 
-								while (pozitie < 10 && (*Nou)[i - 1].Mat[pozitie][k] == -1) {
+								while (pozitie < 10 && 
+									(*Nou)[i - 1].Mat[pozitie][k] == -1) {
 									(*Nou)[i - 1].Mat[pozitie][k] = 4 + doi;
 									pozitie ++;
 								}
@@ -2365,7 +2379,10 @@ void readData(configuratie **Configuratii, int *marime, int argc, char *argv[], 
 			fclose(fila);
 		} else {
 			*eroare = 1;
-			fprintf(stderr, "[Eroare]: Fisierul %s nu poate fi deschis\n", argv[i]);
+			char *s;
+			s = strdup(argv[i]);
+			fprintf(stderr, "[Eroare]: Fisierul %s nu poate fi deschis\n", s);
+			free(s);
 			return;
 		}
 	}
@@ -2436,10 +2453,17 @@ void viewInfo(WINDOW *terminal, int nrows, int ncols) {
 	elem = malloc(initial * sizeof(char));
 	strcpy(elem, "-Apasa Q sau q pentru a iesi.\n");
 	strcat(elem, "-Prin meniul puteti naviga doar cu sagetile.\n");
-	strcat(elem, "-In meniul New Game si Choose an old config navigati treceti la ultimele 2 variante apasand sagetiile stanga sau dreapta.\n");
-	strcat(elem, "-Jocul e cat de cat Responsive, dar recomandat e sa nu dati resize cand e randul calculatorului sau dupa ce ati apasat varianta de mers 10 pasi inainte(D), deoarece nu o sa mearga resize.\n");
-	strcat(elem, "-Cu un click selectati casuta si cu dublu click atacati respectiva casuta.\n");
-	strcat(elem, "-Pentru o experienta de joc buna se recomanda o dimensiune de peste 38x130 a terminalului.\n");
+	strcat(elem, "-In meniul New Game si Choose an old config ");
+	strcat(elem, "navigati treceti la ultimele 2 variante ");
+	strcat(elem, "apasand sagetiile stanga sau dreapta.\n");
+	strcat(elem, "-Jocul e cat de cat Responsive, dar recomandat ");
+	strcat(elem, "e sa nu dati resize cand e randul calculatorului ");
+	strcat(elem, "sau dupa ce ati apasat varianta de mers 10 pasi ");
+	strcat(elem, "inainte(D), deoarece nu o sa mearga resize.\n");
+	strcat(elem, "-Cu un click selectati casuta si cu dublu click ");
+	strcat(elem, "atacati respectiva casuta.\n");
+	strcat(elem, "-Pentru o experienta de joc buna se recomanda o ");
+	strcat(elem, "dimensiune de peste 38x130 a terminalului.\n");
 	strcat(elem, "-Distractie placuta.\n");
 	start_color();
 	init_pair(BOX, COLOR_BLACK, COLOR_CYAN);
@@ -2593,7 +2617,8 @@ int main(int argc, char *argv[])
 	alocare(&Player);
 	i = 0;
 	initWindows(nrows, ncols);
-	initText(meniu[hasGame].elemente, linieText, coloanaText, 0, meniu[hasGame].valoare);
+	initText(meniu[hasGame].elemente, linieText,
+	 coloanaText, 0, meniu[hasGame].valoare);
 	int scor = 0;
 
 	while (checker)
@@ -2602,52 +2627,55 @@ int main(int argc, char *argv[])
 		linieText = nrows / 3;
 		coloanaText = ncols / 2 - 10;
 		initWindows(nrows, ncols);
-		initText(meniu[hasGame].elemente, linieText, coloanaText, i, meniu[hasGame].valoare);
+		initText(meniu[hasGame].elemente, linieText,
+		 coloanaText, i, meniu[hasGame].valoare);
 		if ((d = getch()) != 'Q' && d != 'q') {
 			switch( d ){
 				case KEY_DOWN:
-							i++;
-							i = ( i > meniu[hasGame].valoare - 1) ? 0 : i;
-							break;
+					i++;
+					i = ( i > meniu[hasGame].valoare - 1) ? 0 : i;
+					break;
 				case KEY_UP:
-							i--;
-							i = ( i < 0) ? meniu[hasGame].valoare - 1 : i;
-							break; 
+					i--;
+					i = ( i < 0) ? meniu[hasGame].valoare - 1 : i;
+					break; 
 				case 10:
-							if (hasGame == 1) {
-								if (i == 0) {
-									initializare(PC);
-									NewGame(PC, Configuratii, marime, Nou, dimensiune, terminal);
-									initWindows(nrows, ncols);
-									eJoc(&hasGame);
-								} else if (i == 1)
-								{
-									dateJoc(Player, PC, &scor);
-									startGame(PC, Player, terminal, scor);
-									eJoc(&hasGame);
-								} else if (i == 2) {
-									viewInfo(terminal, nrows, ncols);
-								} else if (i == 3) {
-									afiseazaScoreBoard(nrows, ncols);
-								} else if (i == 4) {
-									salveazaConfiguratii(Nou, dimensiune);
-									checker = 0;
-								}
-							} else {
-								if (i == 0) {
-									NewGame(PC, Configuratii, marime, Nou, dimensiune, terminal);
-									initWindows(nrows, ncols);
-									eJoc(&hasGame);
-								} else if (i == 1) {
-									viewInfo(terminal, nrows, ncols);
-								} else if (i == 2) {
-									afiseazaScoreBoard(nrows, ncols);
-								} else if (i == 3) {
-									salveazaConfiguratii(Nou, dimensiune);
-									checker = 0;
-								}
-							}
-							break;
+					if (hasGame == 1) {
+						if (i == 0) {
+							initializare(PC);
+							NewGame(PC, Configuratii, marime, Nou,
+							 dimensiune, terminal);
+							initWindows(nrows, ncols);
+							eJoc(&hasGame);
+						} else if (i == 1)
+						{
+							dateJoc(Player, PC, &scor);
+							startGame(PC, Player, terminal, scor);
+							eJoc(&hasGame);
+						} else if (i == 2) {
+							viewInfo(terminal, nrows, ncols);
+						} else if (i == 3) {
+							afiseazaScoreBoard(nrows, ncols);
+						} else if (i == 4) {
+							salveazaConfiguratii(Nou, dimensiune);
+							checker = 0;
+						}
+					} else {
+						if (i == 0) {
+							NewGame(PC, Configuratii, marime, Nou,
+							 dimensiune, terminal);
+							initWindows(nrows, ncols);
+							eJoc(&hasGame);
+						} else if (i == 1) {
+							viewInfo(terminal, nrows, ncols);
+						} else if (i == 2) {
+							afiseazaScoreBoard(nrows, ncols);
+						} else if (i == 3) {
+							salveazaConfiguratii(Nou, dimensiune);
+							checker = 0;
+						}
+					}
+					break;
 			}
 		} else if( d == 'Q' || d == 'q') {
 			salveazaConfiguratii(Nou, dimensiune);
