@@ -705,16 +705,26 @@ void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc, int nrows,
 		} else {
 			lin = *in + *numaratoare * peY[*directie];
 			col = *jn + *numaratoare * peX[*directie];
-			while (lin > 9 || lin < 0 || col > 9 || col < 0) {
-				*directie = (*directie  + 3) % 4;
-				lin = *in + *numaratoare * peY[*directie];
-				col = *jn + *numaratoare * peX[*directie];
-			}
+			int verifica = 0;
+			while (verifica) {
+				while ( (lin <= 9 && lin >= 0 && col <= 9 && col >= 0) &&
+					Jucator.Mat[lin][col] == -2) {
+					*numaratoare = *numaratoare + 1;
+					lin = *in + *numaratoare * peY[*directie];
+					col = *jn + *numaratoare * peX[*directie];
+				}
 
-			while (Jucator.Mat[lin][col] == -2) {
-				*numaratoare = *numaratoare + 1;
-				lin = *in + *numaratoare * peY[*directie];
-				col = *jn + *numaratoare * peX[*directie];
+				while (lin > 9 || lin < 0 || col > 9 || col < 0 || 
+					Jucator.Mat[lin][col] == -1) {
+					*directie = (*directie  + 3) % 4;
+					lin = *in + *numaratoare * peY[*directie];
+					col = *jn + *numaratoare * peX[*directie];
+					*numaratoare = 1;
+				}
+
+				if (Jucator.Mat[lin][col] >= 0) {
+					verifica = 1;
+				}
 			}
 
 			if (Jucator.Mat[lin][col] > 0) {
