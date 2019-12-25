@@ -665,32 +665,78 @@ void stergeLinie(int r, int ncols) {
 
 //randul PCului
 void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc, int nrows,
- int ncols) {
+ int ncols, int *directie, int *numaratoare, int *in, int *jn) {
 	int lin, col;
 	int checker = 1;
+	int peX[] = { -1, 0, 0, 1};
+	int peY[] = { 0, -1, 1, 0};
 
 	while (checker) {
-		lin = randomize();
-		col = randomize();
-
-		while (Jucator.Mat[lin][col] == -1 || Jucator.Mat[lin][col] == -2) {
+		if (*numaratoare == 0) {
 			lin = randomize();
 			col = randomize();
-		}
 
-		if (Jucator.Mat[lin][col] > 0) {
-			Jucator.Ships[ Jucator.Mat[lin][col] - 1 ] --;
-
-			if (Jucator.Ships[ Jucator.Mat[lin][col] - 1 ] == 0) {
-				acopera(Jucator, Jucator.Mat[lin][col] - 1);
+			while (Jucator.Mat[lin][col] == -1 ||
+			 Jucator.Mat[lin][col] == -2) {
+				lin = randomize();
+				col = randomize();
 			}
 
-			Jucator.Mat[lin][col] = -2;
+			if (Jucator.Mat[lin][col] > 0) {
+				Jucator.Ships[ Jucator.Mat[lin][col] - 1 ] --;
 
+				if (Jucator.Ships[ Jucator.Mat[lin][col] - 1 ] == 0) {
+					acopera(Jucator, Jucator.Mat[lin][col] - 1);
+					*directie = 0;
+					*numaratoare = 0;
+				} else {
+					*directie = 0;
+					*numaratoare = 1;
+					*in = lin;
+					*jn = col;
+				}
+
+				Jucator.Mat[lin][col] = -2;
+
+			} else {
+				Jucator.Mat[lin][col] = -1;
+				checker = 0;
+			}
 		} else {
-			Jucator.Mat[lin][col] = -1;
-			checker = 0;
+			lin = *in + *numaratoare * peY[*directie];
+			col = *jn + *numaratoare * peX[*directie];
+			while (lin > 9 || lin < 0 || col > 9 || col < 0) {
+				*directie = (*directie  + 3) % 4;
+				lin = *in + *numaratoare * peY[*directie];
+				col = *jn + *numaratoare * peX[*directie];
+			}
+
+			while (Jucator.Mat[lin][col] == -2) {
+				*numaratoare = *numaratoare + 1;
+				lin = *in + *numaratoare * peY[*directie];
+				col = *jn + *numaratoare * peX[*directie];
+			}
+
+			if (Jucator.Mat[lin][col] > 0) {
+				Jucator.Ships[ Jucator.Mat[lin][col] - 1 ] --;
+
+				if (Jucator.Ships[ Jucator.Mat[lin][col] - 1 ] == 0) {
+					acopera(Jucator, Jucator.Mat[lin][col] - 1);
+					*directie = 0;
+					*numaratoare = 0;
+				} else {
+					*numaratoare = *numaratoare + 1;
+				}
+
+				Jucator.Mat[lin][col] = -2;
+
+			} else {
+				Jucator.Mat[lin][col] = -1;
+				checker = 0;
+				*directie = (*directie + 3) % 4;
+			}
 		}
+		
 
 		if (nrows > 38 && ncols > 132) {
 			showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
@@ -993,7 +1039,7 @@ void retine(configuratie PC, configuratie Jucator) {
 void ExitMenu(int ncols, int nrows) {	
 	start_color();
 	init_pair(BOX, COLOR_BLACK, COLOR_CYAN);
-	WINDOW *win = newwin(10, ncols / 3, 20, ncols / 3);
+	WINDOW *win = newwin(10, ncols / 3, nrows / 2 - 6, ncols / 3);
 	box(win, 0, 0);
 	wbkgd(win, COLOR_PAIR(BOX));
 	attron(COLOR_PAIR(BOX));
@@ -1002,9 +1048,10 @@ void ExitMenu(int ncols, int nrows) {
 	elem[0] = strdup("Do you want to exit?");
 	elem[1] = strdup("Yes(Y)");
 	elem[2] = strdup("No(N)");
-	mvprintw(22, ncols / 3 + (ncols / 3 - 20 ) / 2 , "%s", elem[0]);
-	mvprintw(28, ncols / 3 + (ncols / 3 - 11 ) / 3, "%s", elem[1]);
-	mvprintw(28, ncols / 3 + 2 * (ncols / 3 - 11 ) / 3 + 7, "%s", elem[2]);
+	int v = nrows / 2;
+	mvprintw(v - 4, ncols / 3 + (ncols / 3 - 20 ) / 2 , "%s", elem[0]);
+	mvprintw(v + 2, ncols / 3 + (ncols / 3 - 11 ) / 3, "%s", elem[1]);
+	mvprintw(v + 2, ncols / 3 + 2 * (ncols / 3 - 11 ) / 3 + 7, "%s", elem[2]);
 	wrefresh(win);
 	attroff(COLOR_PAIR(BOX));
 	int i;
@@ -1033,7 +1080,7 @@ void nuAreJoc() {
 void MesajFinal(int x, int ncols, int nrows) {
 	start_color();
 	init_pair(BOX2, COLOR_BLACK, COLOR_CYAN);
-	WINDOW *win5 = newwin(10, ncols / 3, 20, ncols / 3);
+	WINDOW *win5 = newwin(10, ncols / 3, nrows / 2 - 2, ncols / 3);
 	box(win5, 0, 0);
 	wbkgd(win5, COLOR_PAIR(BOX2));
 	init_pair(BOX, COLOR_BLACK, COLOR_CYAN);
@@ -1155,6 +1202,7 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal,
 	initWindows(nrows, ncols);
 	int caracter, raspuns;
 	int Bonus = 1;
+	int in = 0, jn = 0, directie = 0, numaratoare = 0;
 
 	int Linie = 15, ColoanaJuc = 25, ColoanaPC = ncols - 65;
 	if (nrows > 38 && ncols > 132) {
@@ -1496,7 +1544,8 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal,
 			}
 			
 		} else { // calculator
-			PCTurn(Jucator, Linie, ColoanaJuc, nrows, ncols);
+			PCTurn(Jucator, Linie, ColoanaJuc, nrows, ncols, &directie,
+				&numaratoare, &in, &jn);
 			if (nrows > 38 && ncols > 132) {
 				ColoanaJuc = 25;
 				ColoanaPC = ncols - 65;
@@ -2502,7 +2551,7 @@ void viewInfo(WINDOW *terminal, int nrows, int ncols) {
 }
 
 //afisez scoreboard
-void afiseazaScoreBoard(int nrows, int ncols) {
+void afiseazaScoreBoard(int nrows, int ncols, WINDOW *terminal) {
 	FILE *fila;
 	fila = fopen("ScorRec.txt", "r");
 	char **numar, ceva[30];
@@ -2515,7 +2564,7 @@ void afiseazaScoreBoard(int nrows, int ncols) {
 
 	strcpy(numar[0], "Iesiti apasand Q sau q\0");
 	strcpy(numar[1], "Scoreboard\0");
-	linieText = nrows / 3;
+	linieText = nrows / 5 - 2;
 	coloanaText = ncols / 2 - 10;
 
 	if (fila != NULL) {
@@ -2543,7 +2592,8 @@ void afiseazaScoreBoard(int nrows, int ncols) {
 	int checker = 1;
 
 	while (checker) {
-	linieText = nrows / 3;
+	getmaxyx(terminal, nrows, ncols);
+	linieText = nrows / 5 - 2;
 	coloanaText = ncols / 2 - 10;
 	initWindows(nrows, ncols);
 	initText(numar, linieText, coloanaText, -1, 7);
@@ -2655,7 +2705,7 @@ int main(int argc, char *argv[])
 						} else if (i == 2) {
 							viewInfo(terminal, nrows, ncols);
 						} else if (i == 3) {
-							afiseazaScoreBoard(nrows, ncols);
+							afiseazaScoreBoard(nrows, ncols, terminal);
 						} else if (i == 4) {
 							salveazaConfiguratii(Nou, dimensiune);
 							checker = 0;
@@ -2669,7 +2719,7 @@ int main(int argc, char *argv[])
 						} else if (i == 1) {
 							viewInfo(terminal, nrows, ncols);
 						} else if (i == 2) {
-							afiseazaScoreBoard(nrows, ncols);
+							afiseazaScoreBoard(nrows, ncols, terminal);
 						} else if (i == 3) {
 							salveazaConfiguratii(Nou, dimensiune);
 							checker = 0;
