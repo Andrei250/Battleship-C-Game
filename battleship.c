@@ -706,20 +706,23 @@ void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc, int nrows,
 			lin = *in + *numaratoare * peY[*directie];
 			col = *jn + *numaratoare * peX[*directie];
 			int verifica = 0;
-			while (verifica) {
-				while ( (lin <= 9 && lin >= 0 && col <= 9 && col >= 0) &&
-					Jucator.Mat[lin][col] == -2) {
-					*numaratoare = *numaratoare + 1;
-					lin = *in + *numaratoare * peY[*directie];
-					col = *jn + *numaratoare * peX[*directie];
+			while (verifica == 0) {
+				while (lin <= 9 && lin >= 0 && col <= 9 && col >= 0) {
+					if (Jucator.Mat[lin][col] == -2) {
+						*numaratoare = *numaratoare + 1;
+						lin = *in + *numaratoare * peY[*directie];
+						col = *jn + *numaratoare * peX[*directie];
+					} else {
+						break;
+					}
 				}
 
-				while (lin > 9 || lin < 0 || col > 9 || col < 0 || 
+				while ((lin > 9 || lin < 0 || col > 9 || col < 0) || 
 					Jucator.Mat[lin][col] == -1) {
 					*directie = (*directie  + 3) % 4;
-					lin = *in + *numaratoare * peY[*directie];
-					col = *jn + *numaratoare * peX[*directie];
 					*numaratoare = 1;
+					lin = *in + *numaratoare * peY[*directie];
+					col = *jn + *numaratoare * peX[*directie];	
 				}
 
 				if (Jucator.Mat[lin][col] >= 0) {
@@ -927,10 +930,9 @@ void retine(configuratie PC, configuratie Jucator) {
 		int i, j;
 		char *string;
 		char number[3];
-		string = malloc(30 * sizeof(char));
 		fputc('1', fila);
 		fputc('\n', fila);
-
+		string = malloc(50 * sizeof(char));
 		//salvez configuratia pcului
 		for (i = 0; i < 10; ++ i) {
 			string[0] = '\0';
@@ -1039,7 +1041,7 @@ void retine(configuratie PC, configuratie Jucator) {
 		}
 		fputs(string, fila);
 		fputc('\n', fila);
-
+		
 		free(string);
 		fclose(fila);
 	}
@@ -1158,13 +1160,13 @@ void retineScorF(int score) {
 	FILE *fila;
 	char numar[10];
 	int valori[6] = { 0 }, i;
-	fila = fopen("ScorRec.txt", "w");
+	fila = fopen("ScorRec.txt", "r");
 
 	if (fila != NULL) {
 		for (i = 0; i < 5; ++i) {
 			fgets(numar, 10, fila);
 			int j = 0;
-			while (numar[j] >= '0' && numar[j] <= '9' && j < 10) {
+			while (j < 10 && numar[j] >= '0' && numar[j] <= '9' ) {
 				j ++;
 			}
 			if (j < 10) {
@@ -1188,7 +1190,7 @@ void retineScorF(int score) {
 
 		valori[pozitie] = score;
 
-
+		fclose(fila);
 	}	
 
 	fila = fopen("ScorRec.txt", "w");
@@ -2225,7 +2227,7 @@ void readData(configuratie **Configuratii, int *marime, int argc,
 		char *sr;
 		sr = malloc(40 * sizeof(char));
 		fgets(sr, 40, fila);
-		*marime = sr[0] - '0';
+		*marime = atoi(sr);
 		int i, j, k;
 		*Configuratii = malloc(*marime * sizeof(configuratie));
 
@@ -2454,7 +2456,9 @@ void salveazaConfiguratii(configuratie *Nou, int dimensiune) {
 	fila = fopen("configuratii.txt", "w");
 
 	if (fila != NULL) {
-		fputc('0' + dimensiune, fila);
+		char ssir[10];
+		sprintf(ssir, "%d", dimensiune);
+		fputs(ssir, fila);
 		fputc('\n', fila);
 
 		for (k = 0; k < dimensiune; ++k) {
