@@ -87,7 +87,7 @@ int randomize() {
 	return rand() % 10;
 }
 
-//initializez interfata jocului
+//initializez interfata colorata jocului
 void initWindows(int nrows, int ncols) {
 	int r, c;
 	r = c = 0;
@@ -113,7 +113,8 @@ void initWindows(int nrows, int ncols) {
 	move(0, 0);
 }
 
-//initializez meniul de inceput cu new game, resume game si quit
+//initializez meniul de inceput cu new game, resume game, quit,
+//scoreboard si info
 void initText(char **elements, int linieText,
  int coloanaText, int poz, int number) {
 	char *item;
@@ -174,7 +175,7 @@ int checks(int cornerLefti, int cornerLeftj, int cornerRighti,
 	return 1;
 }
 
-//generez mapa random a calcualtorului si a jucatorului cand apasa R
+//generez mapa random a calculatorului si a jucatorului cand apasa R
 void genereaza(configuratie PC) {
 	int i, index, jindex;
 	for (index = 0; index < 10; ++index) {
@@ -747,6 +748,7 @@ void PCTurn(configuratie Jucator, int Linie, int ColoanaJuc, int nrows,
 				Jucator.Mat[lin][col] = -1;
 				checker = 0;
 				*directie = (*directie + 3) % 4;
+				*numaratoare = 1;
 			}
 		}
 		
@@ -1189,6 +1191,17 @@ void retineScorF(int score) {
 		}
 
 		valori[pozitie] = score;
+		int j;
+
+		for (i = 0; i < 4; ++i) {
+			for (j = i + 1; j < 5; ++j) {
+				if (valori[i] < valori[j]) {
+					int aux = valori[i];
+					valori[i] = valori[j];
+					valori[j] = aux;
+				}
+			}
+		}	
 
 		fclose(fila);
 	}	
@@ -1206,7 +1219,8 @@ void retineScorF(int score) {
 	}
 }
 
-//incep un nou joc
+//incep un nou joc si realizez mutarile si fac swap intre randul
+//jucatorului si al PC-ului
 void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal,
  int score) {
 	int i, j, nrows, ncols, d;
@@ -1346,6 +1360,22 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal,
 										score += Bonus;
 
 									}
+									if (nrows > 38 && ncols > 132) {
+											ColoanaJuc = 25;
+											ColoanaPC = ncols - 65;
+											Linie = 15;
+											showConfigBig(Jucator.Mat, Linie,
+											 ColoanaJuc);
+											showConfigPC(PC.Mat, Linie,
+											 ColoanaPC);
+										} else {
+											ColoanaJuc = 15;
+											ColoanaPC = ncols - 35;
+											Linie = 10;
+											showConfig(Jucator.Mat, Linie,
+											 ColoanaJuc);
+											showPC(PC.Mat, Linie, ColoanaPC);
+										}
 									printScore(nrows, ncols, Linie,
 									 ColoanaPC, score);
 
@@ -1417,6 +1447,20 @@ void startGame(configuratie PC, configuratie Jucator, WINDOW *terminal,
 							}
 
 							score += Bonus;
+						}
+						if (nrows > 38 && ncols > 132) {
+							ColoanaJuc = 25;
+							ColoanaPC = ncols - 65;
+							Linie = 15;
+							showConfigBig(Jucator.Mat, Linie, ColoanaJuc);
+							showConfigPC(PC.Mat, Linie,
+							 ColoanaPC);
+						} else {
+							ColoanaJuc = 15;
+							ColoanaPC = ncols - 35;
+							Linie = 10;
+							showConfig(Jucator.Mat, Linie, ColoanaJuc);
+							showPC(PC.Mat, Linie, ColoanaPC);
 						}
 						printScore(nrows, ncols, Linie, ColoanaPC, score);
 
@@ -2726,6 +2770,7 @@ int main(int argc, char *argv[])
 						}
 					} else {
 						if (i == 0) {
+							initializare(PC);
 							NewGame(PC, Configuratii, marime, Nou,
 							 dimensiune, terminal);
 							initWindows(nrows, ncols);

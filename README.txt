@@ -9,6 +9,9 @@ care coloreaza imaginea cu CYAN si printeaza scrisul.
 in cele ce urmeaza despre fiecare interfata.
 -Din majoritatea interfetelor se iese apasant Q sau q, iar unele au si 
 optiunea d eselectat "QUIT".
+-In fisierul ExampleMatrix.txt este un model de configuratie al jucatorului,
+unde 'X' inseamna  o parte din nava, ' ' reprezinta spatiu liber, iar
+'|' inseamna caracterul delimitator dintre celule.
 In cele ce urmeaza o sa explic mai mult cerintele problemei, iar anumite 
 detalii vor si explicate mai bine in bonusuri.
 La final sunt informatii despre fisiere.
@@ -131,6 +134,15 @@ directia in care se afla nava fata de punctul de incepere, coordonatele
 punctelor de incepere ale navelor, vectorul navelor si vectorul vapoarelor, 
 folosit pentru a vedea marimea navei respective. Aceste structuri au usurat
 mult programul si munca de implementare a acestuia. 
+
+Fisiere auxiliare:
+	-ExampleMatrix.txt unde este un model de configuratie a jucatorului.
+	-configuratii.txt unde se afla configuratiile folosite precedent.
+	si care se pot refolosi in joc.
+	-existaJoc.txt unde se verfifica daca jocul exista(1) sau nu(0).
+	-Scor.txt unde se retine scorul de la un meci neterminat.
+	-ScorRec.txt unde se retin cele mai mari 5 scoruri inregistrate.
+	-Makefile unde sunt comenzile make.
 
 Memory Leaks:
 	Nu am putut rezolva leak-urile legate de ncurses. Am cautat pe net
