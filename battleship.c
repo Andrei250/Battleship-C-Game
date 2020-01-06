@@ -1879,6 +1879,10 @@ void OldConfig(configuratie PC, configuratie *Configuratii,
     cbreak();
 	noecho();
 
+	if (marime == 0) {
+		j = 1;
+	}
+
     while (checker)
 	{
 		getmaxyx(terminal, nrows, ncols);
@@ -1923,6 +1927,9 @@ void OldConfig(configuratie PC, configuratie *Configuratii,
 							} else if (j == 1) {
 								i = marime;
 							}
+							if (marime == 0) {
+								j = 1;
+							}
 							break; 
 				case KEY_LEFT:
 							j--;
@@ -1931,6 +1938,9 @@ void OldConfig(configuratie PC, configuratie *Configuratii,
 								i = marime;
 							} else if (j == 0) {
 								i = 0;
+							}
+							if (marime == 0) {
+								j = 1;
 							}
 							break;
 				case 10:

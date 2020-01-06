@@ -12,6 +12,31 @@ optiunea d eselectat "QUIT".
 -In fisierul ExampleMatrix.txt este un model de configuratie al jucatorului,
 unde 'X' inseamna  o parte din nava, ' ' reprezinta spatiu liber, iar
 '|' inseamna caracterul delimitator dintre celule.
+
+Model configuratie jucator in fisier in ExampleMatrix.txt:
+	| | | | | |X| | | | |
+	|X|X|X|X| | | | | | |
+	| | | | | | | |X|X|X|
+	| |X| | | | | | | | |
+	| | | | |X| | | | |X|
+	| | | | |X| | | | | |
+	|X|X| | |X| | |X|X| |
+	| | | | | | | | | | |
+	| | |X| | | | |X| | |
+	| | |X| | | | | | | |
+
+Generarea matricei calculatorului:
+	Algoritmul de generare este unul simplu si se bazeaza pe faptul ca
+	dupa plasarea unei nave, conturul ei sa fie marcat cu -1, iar apoi
+	cand se plaseaza alta nava se verifica daca aria dreptunghiului
+	nu cuprinde alte numere decat 0 si -1. De exemplu:
+	-1 -1 -1 
+	-1  3 -1 -1 -1 -1 
+	-1  3 -1  2  2 -1
+	-1  3 -1 -1 -1 -1 
+	-1 -1 -1
+	este valid pentru o nada de 3 si una de 2 cu 1 spatiu intre ele.
+
 In cele ce urmeaza o sa explic mai mult cerintele problemei, iar anumite 
 detalii vor si explicate mai bine in bonusuri.
 La final sunt informatii despre fisiere.
@@ -123,6 +148,21 @@ Bonusuri:
  		in sens opus sa vada daca o nava se mai afla acolo. Dupa ce nimereste
  		o intreaga nava, acesta cauta iar random.
 
+
+Fisiere adaugate in plus:
+	Fisierele T* sunt teste generate de mine. Pentru a genera teste am facut
+	fisierul generare.c care genereaza random teste. pentru a genera un numar
+	de teste se intra in makefile si acolo la optiunea generare se pune in 
+	loc de acel numar valoare de teste pe care o doriti. si se ruleaza "make 
+	generare".
+
+Comenzi pentru make:
+	"make" sau "make build" pentru a compila programul, "make run" pentru a 
+	rula programul, "make runWLeaks" pentru a rula cu valgrind si a pune
+	erorile intr-un fisier "ceva.txt". "make clean" pentru a sterge 
+	executabilul, "make sterge" pentru a sterge executabilul generarii,
+	"make generare" pentru a genera teste si "make test" pentru a 
+	verifica daca transmiterea unui fisier gresit iese din program.
 
 Navigare prin joc:
 	Prin toate meniurile se navigheaza doar cu sagetiile. Numai in joc

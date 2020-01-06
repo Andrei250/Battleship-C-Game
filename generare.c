@@ -93,22 +93,34 @@ void genereaza(int **Matrix, int Nave[]) {
 int main(int arc, char *argv[]) {
 
 	clock_t begin, end;
-
+	int i, j, k;
 	int **Matrix;
 	time_t t;
 	srand((unsigned) time(&t));
 
 	Matrix = malloc( 10 * sizeof(int *));
 
-	for(int i = 0; i < 10; ++i)
+	for(i = 0; i < 10; ++i)
 		Matrix[i] = malloc(10 * sizeof(int));
 
 	int Nave[] = {4, 3, 3, 2, 2, 2, 1, 1, 1, 1};
 
-	for (int k = 1; k <= 10; ++k ) {
+	if (arc <= 1) {
+		return 1;
+	}
 
-		for (int i = 0; i < 10; ++i)
-			for (int j = 0; j < 10; ++j)
+	int cc = 0;
+	while (cc < strlen(argv[1])) {
+		if(argv[1][cc] < '0' || argv[1][cc] > '9') {
+			return 1;
+		}
+		cc ++;
+	}
+
+	for (k = 1; k <= atoi(argv[1]); ++k ) {
+
+		for (i = 0; i < 10; ++i)
+			for (j = 0; j < 10; ++j)
 				Matrix[i][j] = 0;
 
 		begin = clock();
@@ -117,7 +129,7 @@ int main(int arc, char *argv[]) {
 
 		FILE *fila;
 		char buffer[35];
-		sprintf(buffer, "Test%d", k);
+		sprintf(buffer, "T%d", k);
 
 		fila = fopen(buffer, "w");
 
@@ -126,18 +138,18 @@ int main(int arc, char *argv[]) {
 
 			for (int j = 0; j < 10; ++j) {
 				if (Matrix[i][j] > 0) {
-					fputc('X',fila);
+					fputc('X', fila);
 				} else {
-					fputc(' ',fila);
+					fputc(' ', fila);
 				}
-				fputc('|',fila);
+				fputc('|', fila);
 			}
 
-			fputc('\n',fila);
+			fputc('\n', fila);
 		}
 
 	}
-	printf("%lf\n",(double)(end - begin ) / CLOCKS_PER_SEC );
+
 
 
 	return 0;
