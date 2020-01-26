@@ -191,6 +191,10 @@ Memory Leaks:
 	doar ce tine de memoria alocata dinamic de mine.
 
 P.S.:
+	Am trimis proiectul fara nici o configuratie veche. Pentru a avea
+	configuratii vechi se iasa din joc si se reintra iar, deoarece
+	jocul salveaza configuratiile care au fost introduse ultima data 
+	de jucator.
 	In fisierul Scor.txt daca vreti sa nu se salveze scorul puteti pune
 	valoare 0. De asemenea in ScorRec.txt daca vreti sa resetati toate 
 	scorurile puneti 0 pe primele 5 linii. Fisierul ExampleMatrix.txt
